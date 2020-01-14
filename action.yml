@@ -11,7 +11,7 @@ inputs:
     default: prod
 runs:
   using: 'docker'
-  image: 'docker://cfautotickbot/cf-autotick-bot-action:prod'
+  image: 'docker://condaforge/rego-cf-autotick-bot-action:prod'
   args:
     - ${{ inputs.git-ref }}
     - ${{ inputs.repo-token }}
