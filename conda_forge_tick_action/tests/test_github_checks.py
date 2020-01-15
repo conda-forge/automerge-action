@@ -1,8 +1,8 @@
-from .automerge_pr import _check_github_checks
+from ..automerge_pr import _check_github_checks
 
 
 def test_check_github_checks_nochecks():
-    stat, _ = _check_github_checks([])
+    stat = _check_github_checks([])
     assert stat is None
 
 
