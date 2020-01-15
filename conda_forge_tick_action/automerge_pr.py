@@ -72,6 +72,10 @@ def _check_github_statuses(statuses, extra_ignored_statuses=None):
         The state. `True` if all have passed, `False` if there are
         any failures or pending checks, `None` if there are no input checks.
     """
+    # github emits all of the statuses with a time stamp as events
+    # you have to keep the latest one
+    # so this is why we compare the times below
+
     extra_ignored_statuses = extra_ignored_statuses or []
 
     status_states = {}
