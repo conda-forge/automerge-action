@@ -1,18 +1,20 @@
-from ..github_checks import check_github_checks
+from .automerge_pr import _check_github_checks
 
 
 def test_check_github_checks_nochecks():
-    stat, _ = check_github_checks([])
+    stat, _ = _check_github_checks([])
     assert stat is None
 
 
 def test_check_github_checks_ignores_self():
-    checks = [{
-        'name': 'regro-cf-autotick-bot-action',
-        'status': 'blah',
-        'conclusion': 'blah',
-    }]
-    stat, _ = check_github_checks(checks)
+    checks = [
+        {
+            'name': 'regro-cf-autotick-bot-action',
+            'status': 'blah',
+            'conclusion': 'blah',
+        },
+    ]
+    stat = _check_github_checks(checks)
     assert stat is None
 
 
@@ -29,7 +31,7 @@ def test_check_github_checks_all_pending():
             'conclusion': 'blah',
         },
     ]
-    stat, _ = check_github_checks(checks)
+    stat = _check_github_checks(checks)
     assert not stat
 
 
@@ -46,7 +48,7 @@ def test_check_github_checks_all_fail():
             'conclusion': 'failure',
         },
     ]
-    stat, _ = check_github_checks(checks)
+    stat = _check_github_checks(checks)
     assert not stat
 
 
@@ -63,7 +65,7 @@ def test_check_github_checks_all_success():
             'conclusion': 'success',
         },
     ]
-    stat, _ = check_github_checks(checks)
+    stat = _check_github_checks(checks)
     assert stat
 
 
@@ -80,7 +82,7 @@ def test_check_github_checks_success_plus_pending():
             'conclusion': 'success',
         },
     ]
-    stat, _ = check_github_checks(checks)
+    stat = _check_github_checks(checks)
     assert not stat
 
 
@@ -102,7 +104,7 @@ def test_check_github_checks_success_plus_fail():
             'conclusion': 'success',
         },
     ]
-    stat, _ = check_github_checks(checks)
+    stat = _check_github_checks(checks)
     assert not stat
 
 
@@ -124,7 +126,7 @@ def test_check_github_checks_pending_plus_fail():
             'conclusion': 'success',
         },
     ]
-    stat, _ = check_github_checks(checks)
+    stat = _check_github_checks(checks)
     assert not stat
 
 
@@ -151,5 +153,5 @@ def test_check_github_checks_pending_plus_success_plus_fail():
             'conclusion': 'success',
         },
     ]
-    stat, _ = check_github_checks(checks)
+    stat = _check_github_checks(checks)
     assert not stat
