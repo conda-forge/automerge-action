@@ -5,13 +5,10 @@ inputs:
   repo-token:
     description: 'github token'
     required: true
-  git-ref:
-    description: 'git ref to use'
-    required: false
-    default: prod
 runs:
   using: 'docker'
-  image: 'docker://condaforge/rego-cf-autotick-bot-action:prod'
+  image: 'docker://cfautotickbot/cf-autotick-bot-action:prod'
   args:
-    - ${{ inputs.git-ref }}
     - ${{ inputs.repo-token }}
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
