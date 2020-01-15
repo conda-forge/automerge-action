@@ -1,4 +1,5 @@
 # regro-cf-autotick-bot-action
+[![Build Status](https://travis-ci.com/regro/cf-autotick-bot-action.svg?branch=master)](https://travis-ci.com/regro/cf-autotick-bot-action)
 
 github action for the conda-forge autotick bot
 
