@@ -37,3 +37,12 @@ Docker image.
  - To redeploy the bot, push a new image to the `prod` tag.
  - To take the bot down, delete the tag from the Docker repository. The GitHub Action
    will still run in this case, but it will always fail.
+   
+## Testing
+
+The code has a test suite. However, to test it live, you can bump the version of 
+[this package](https://github.com/regro/cf-autotick-bot-test-package) 
+by making a GitHub release. Then, after roughly an hour or so, 
+[this feedstock](https://github.com/conda-forge/cf-autotick-bot-test-package-feedstock) 
+should get an automerge PR with the version bump. Several other PRs are open on the feedstock and those 
+should not be merged by the bot.
