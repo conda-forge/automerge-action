@@ -28,6 +28,19 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+## Opt-out or Opt-in
+
+You can turn off PR automerging per feedstock by adding the following to the 
+`conda-forge.yml`
+
+```yaml
+bot:
+  automerge: False
+```
+
+The default is currently `False` if these entries are not present. Set them to `True`
+to turn on automerging.
+
 ## Deployment
 
 The GitHub action always points to the `prod` tag of the
