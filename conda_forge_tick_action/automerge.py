@@ -8,6 +8,8 @@ import tenacity
 
 LOGGER = logging.getLogger(__name__)
 
+ALLOWED_USERS = ['regro-cf-autotick-bot']
+
 # action always ignores itself
 # github actions use the check_run API
 IGNORED_CHECKS = ['regro-cf-autotick-bot-action']
@@ -159,7 +161,7 @@ def _ignore_appveyor(cfg):
 
 def _automerge_pr(repo, pr, session):
     # only allowed users
-    if pr.user.login != 'regro-cf-autotick-bot':
+    if pr.user.login not in ALLOWED_USERS:
         return False, "user %s cannot automerge" % pr.user.login
 
     # only if [bot-automerge] is in the pr title
