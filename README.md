@@ -53,9 +53,14 @@ Docker image.
    
 ## Testing
 
-The code has a test suite. However, to test it live, you can bump the version of 
-[this package](https://github.com/regro/cf-autotick-bot-test-package) 
-by making a GitHub release. Then, after roughly an hour or so, 
-[this feedstock](https://github.com/conda-forge/cf-autotick-bot-test-package-feedstock) 
-should get an automerge PR with the version bump. Several other PRs are open on the feedstock and those 
-should not be merged by the bot.
+The code has a test suite. However, to test it live, you can do one of two things.
+
+1. Bump the version of [this package](https://github.com/regro/cf-autotick-bot-test-package) 
+   by making a GitHub release. Then, after roughly an hour or so, 
+   [this feedstock](https://github.com/conda-forge/cf-autotick-bot-test-package-feedstock) 
+   should get an automerge PR with the version bump. Several other PRs are open on the feedstock and those 
+   should not be merged by the bot.
+   
+2. You can push an image to the `dev` tag of the Docker repo. Then, point the action in 
+   the `.github/workflows/main.yaml` of your testing repo to the `dev` branch of 
+   this repo by changing `regro/cf-autotick-bot-action@master` to `regro/cf-autotick-bot-action@dev`.
