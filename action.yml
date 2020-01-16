@@ -7,6 +7,6 @@ inputs:
     required: true
 runs:
   using: 'docker'
-  image: 'docker://cfautotickbot/cf-autotick-bot-action:prod'
+  image: 'docker://condaforge/rego-cf-autotick-bot-action:prod'
   args:
     - ${{ inputs.github_token }}

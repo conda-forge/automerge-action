@@ -31,7 +31,7 @@ jobs:
 ## Deployment
 
 The GitHub action always points to the `prod` tag of the
-[cfautotickbot/cf-autotick-bot-action](https://hub.docker.com/repository/docker/cfautotickbot/cf-autotick-bot-action)
+[condaforge/rego-cf-autotick-bot-action](https://hub.docker.com/repository/docker/condaforge/rego-cf-autotick-bot-action)
 Docker image.
 
  - To redeploy the bot, push a new image to the `prod` tag.
