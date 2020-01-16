@@ -26,10 +26,8 @@ GOOD_MERGE_STATES = ["clean", "has_hooks", "unknown", "unstable"]
 
 def _automerge_me(cfg):
     """Compute if feedstock allows automeges from `conda-forge.yml`"""
-    automerge_me = cfg.get('bot', {}).get('automerge', None)
-    if automerge_me is None:
-        automerge_me = False
-    return automerge_me
+    # TODO turn False to True when we default to automerge
+    return cfg.get('bot', {}).get('automerge', False)
 
 
 @tenacity.retry(
