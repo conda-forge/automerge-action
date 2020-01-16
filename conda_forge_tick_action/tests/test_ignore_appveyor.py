@@ -3,7 +3,7 @@ import tempfile
 
 import pytest
 
-from ..automerge_pr import _ignore_appveyor
+from ..automerge import _ignore_appveyor
 
 
 def test_ignore_appveyor_no_yaml():

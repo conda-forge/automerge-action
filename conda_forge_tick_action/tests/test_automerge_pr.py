@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from ruamel.yaml import YAML
-from ..automerge_pr import automerge_pr
+from ..automerge import automerge_pr
 
 
 def test_automerge_pr_bad_user():
@@ -72,7 +72,7 @@ def test_automerge_pr_feedstock_off(cfg):
         os.environ.update(_environ)
 
 
-@unittest.mock.patch('conda_forge_tick_action.automerge_pr._check_github_statuses')
+@unittest.mock.patch('conda_forge_tick_action.automerge._check_github_statuses')
 def test_automerge_pr_feedstock_use_appveyor(_check_github_statuses_mk):
     _check_github_statuses_mk.return_value = False
     repo = MagicMock()
@@ -108,7 +108,7 @@ def test_automerge_pr_feedstock_use_appveyor(_check_github_statuses_mk):
         os.environ.update(_environ)
 
 
-@unittest.mock.patch('conda_forge_tick_action.automerge_pr._check_github_statuses')
+@unittest.mock.patch('conda_forge_tick_action.automerge._check_github_statuses')
 def test_automerge_pr_feedstock_statuses_fail(_check_github_statuses_mk):
     _check_github_statuses_mk.return_value = False
     repo = MagicMock()
@@ -144,9 +144,9 @@ def test_automerge_pr_feedstock_statuses_fail(_check_github_statuses_mk):
         os.environ.update(_environ)
 
 
-@unittest.mock.patch('conda_forge_tick_action.automerge_pr._get_checks')
-@unittest.mock.patch('conda_forge_tick_action.automerge_pr._check_github_checks')
-@unittest.mock.patch('conda_forge_tick_action.automerge_pr._check_github_statuses')
+@unittest.mock.patch('conda_forge_tick_action.automerge._get_checks')
+@unittest.mock.patch('conda_forge_tick_action.automerge._check_github_checks')
+@unittest.mock.patch('conda_forge_tick_action.automerge._check_github_statuses')
 def test_automerge_pr_feedstock_checks_fail(
     _check_github_statuses_mk, _check_github_checks_mk, _get_checks_mk
 ):
@@ -185,9 +185,9 @@ def test_automerge_pr_feedstock_checks_fail(
         os.environ.update(_environ)
 
 
-@unittest.mock.patch('conda_forge_tick_action.automerge_pr._get_checks')
-@unittest.mock.patch('conda_forge_tick_action.automerge_pr._check_github_checks')
-@unittest.mock.patch('conda_forge_tick_action.automerge_pr._check_github_statuses')
+@unittest.mock.patch('conda_forge_tick_action.automerge._get_checks')
+@unittest.mock.patch('conda_forge_tick_action.automerge._check_github_checks')
+@unittest.mock.patch('conda_forge_tick_action.automerge._check_github_statuses')
 def test_automerge_pr_feedstock_no_statuses_or_checks(
     _check_github_statuses_mk, _check_github_checks_mk, _get_checks_mk
 ):

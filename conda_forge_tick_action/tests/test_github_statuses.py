@@ -1,6 +1,6 @@
 import datetime
 
-from ..automerge_pr import _check_github_statuses
+from ..automerge import _check_github_statuses
 
 
 class DummyStatus(object):

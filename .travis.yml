@@ -27,7 +27,7 @@ install:
         requests \
         ruamel.yaml \
         flake8 \
-        pytest 
+        pytest
 
     source activate test-env
 
@@ -36,3 +36,4 @@ install:
 script:
   - flake8 conda_forge_tick_action
   - pytest -vv conda_forge_tick_action
+  - command -v run-regro-cf-autotick-bot-action

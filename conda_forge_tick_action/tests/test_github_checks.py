@@ -1,4 +1,4 @@
-from ..automerge_pr import _check_github_checks
+from ..automerge import _check_github_checks
 
 
 def test_check_github_checks_nochecks():

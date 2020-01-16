@@ -4,10 +4,9 @@ setup(
     name="conda_forge_tick_action",
     version="0.1",
     packages=find_packages(),
-    # will add later
-    # entry_points={
-    #     'console_scripts': [
-    #         'run-regro-cf-autotick-bot-action=conda_forge_tick_action.__main__:main',
-    #     ],
-    # },
+    entry_points={
+        'console_scripts': [
+            'run-regro-cf-autotick-bot-action=conda_forge_tick_action.__main__:main',
+        ],
+    },
 )

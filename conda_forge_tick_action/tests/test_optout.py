@@ -1,6 +1,6 @@
 import pytest
 
-from..automerge_pr import _automerge_me
+from..automerge import _automerge_me
 
 
 @pytest.mark.parametrize('cfg_bool', [
