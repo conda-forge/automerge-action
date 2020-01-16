@@ -1,3 +1,5 @@
+import os
+import glob
 import logging
 import datetime
 
@@ -115,3 +117,31 @@ def _check_github_statuses(statuses, extra_ignored_statuses=None):
             return False
         else:
             return True
+
+
+def _ignore_appveyor(cfg):
+    """Should we ignore appveyor?
+
+    Parameters
+    ----------
+    cfg : dict
+        The `conda-forge.yml` as a dictionary.
+
+    Returns
+    -------
+    stat : bool
+        If `True`, ignore appveyor, otherwise do not.
+    """
+    fnames = glob.glob(
+        os.path.join(os.environ['GITHUB_WORKSPACE'], '.ci_support', 'win*.yaml')
+    )
+
+    # windows is not on, so skip
+    if len(fnames) == 0:
+        return True
+
+    # windows is on but maybe we only care about azure?
+    if cfg.get('provider', {}).get('win', 'azure') in ['azure', 'default']:
+        return True
+
+    return False
