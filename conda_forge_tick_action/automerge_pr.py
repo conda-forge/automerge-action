@@ -3,6 +3,9 @@ import glob
 import logging
 import datetime
 
+from ruamel.yaml import YAML
+import tenacity
+
 LOGGER = logging.getLogger(__name__)
 
 # action always ignores itself
@@ -16,6 +19,24 @@ IGNORED_STATUSES = ['conda-forge-linter']
 # sets of states that indicate good / bad / neutral in the github API
 NEUTRAL_STATES = ['pending']
 BAD_STATES = ['failure', 'error']
+GOOD_MERGE_STATES = ["clean", "has_hooks", "unknown", "unstable"]
+
+
+def _automerge_me(cfg):
+    """Compute if feedstock allows automeges from `conda-forge.yml`"""
+    automerge_me = cfg.get('bot', {}).get('automerge', None)
+    if automerge_me is None:
+        automerge_me = False
+    return automerge_me
+
+
+@tenacity.retry(
+    stop=tenacity.stop_after_attempt(10),
+    wait=tenacity.wait_random_exponential(multiplier=0.1))
+def _get_checks(repo, pr, session):
+    return session.get(
+        "https://api.github.com/repos/%s/commits/%s/check-runs" % (
+            repo.full_name, pr.head.sha))
 
 
 def _check_github_checks(checks):
@@ -120,18 +141,7 @@ def _check_github_statuses(statuses, extra_ignored_statuses=None):
 
 
 def _ignore_appveyor(cfg):
-    """Should we ignore appveyor?
-
-    Parameters
-    ----------
-    cfg : dict
-        The `conda-forge.yml` as a dictionary.
-
-    Returns
-    -------
-    stat : bool
-        If `True`, ignore appveyor, otherwise do not.
-    """
+    """Compute if we should ignore appveyor from the `conda-forge.yml`."""
     fnames = glob.glob(
         os.path.join(os.environ['GITHUB_WORKSPACE'], '.ci_support', 'win*.yaml')
     )
@@ -145,3 +155,102 @@ def _ignore_appveyor(cfg):
         return True
 
     return False
+
+
+def _automerge_pr(repo, pr, session):
+    # only allowed users
+    if pr.user.login != 'regro-cf-autotick-bot':
+        return False, "user %s cannot automerge" % pr.user.login
+
+    # only if [bot-automerge] is in the pr title
+    if '[bot-automerge]' not in pr.title:
+        return False, "PR does not have the '[bot-automerge]' slug in the title"
+
+    # now load the the conda-forge config
+    with open(os.path.join(os.environ['GITHUB_WORKSPACE'], 'conda-forge.yml')) as fp:
+        cfg = YAML().load(fp)
+
+    # can we automerge in this feedstock?
+    if not _automerge_me(cfg):
+        return False, "automated bot merges are turned off for this feedstock"
+
+    # now check statuses
+    commit = repo.get_commit(pr.head.sha)
+    statuses = commit.get_statuses()
+    if _ignore_appveyor(cfg):
+        extra_ignored_statuses = ['continuous-integration/appveyor/pr']
+    else:
+        extra_ignored_statuses = None
+    status_ok = _check_github_statuses(
+        statuses,
+        extra_ignored_statuses=extra_ignored_statuses,
+    )
+    if not status_ok and status_ok is not None:
+        return False, "PR has failing or pending statuses"
+
+    # now check checks
+    checks = _get_checks(repo, pr, session)
+    checks_ok = _check_github_checks(checks.json()['check_runs'])
+    if not checks_ok and checks_ok is not None:
+        return False, "PR has failing or pending checks"
+
+    # we need to have at least one check
+    if checks_ok is None and status_ok is None:
+        return False, "No checks or statuses have returned success"
+
+    # make sure PR is mergeable and not already merged
+    if pr.is_merged():
+        return False, "PR has already been merged"
+    if (pr.mergeable is None or
+            not pr.mergeable or
+            pr.mergeable_state not in GOOD_MERGE_STATES):
+        return False, "PR merge issue: mergeable|mergeable_state = %s|%s" % (
+            pr.mergeable, pr.mergeable_state)
+
+    # we're good - now merge
+    merge_status = pr.merge(
+        commit_message="automerged PR by regro-cf-autotick-bot-action",
+        commit_title=pr.title,
+        merge_method='squash',
+        sha=pr.head.sha)
+    if not merge_status.merged:
+        return (
+            False,
+            "PR could not be merged: message %s" % merge_status.message)
+    else:
+        return True, "all is well :)"
+
+
+def automerge_pr(repo, pr, session):
+    """Possibly automege a PR.
+
+    Parameters
+    ----------
+    repo : github.Repository.Repository
+        A `Repository` object for the given repo from the PyGithub package.
+    pr : github.PullRequest.PullRequest
+        A `PullRequest` object for the given PR from the PuGithhub package.
+    session : requests.Session
+        A `requests` session w/ the correct headers for the GitHub API v3.
+        See `conda_forge_tick_action.api_sessions.create_api_sessions` for
+        details.
+
+    Returns
+    -------
+    did_merge : bool
+        If `True`, the merge was done, `False` if not.
+    reason : str
+        The reason the merge worked or did not work.
+    """
+    did_merge, reason = _automerge_pr(repo, pr, session)
+
+    if did_merge:
+        LOGGER.info(
+            'MERGED PR %s on %s: %s',
+            pr.number, repo.full_name, reason)
+    else:
+        LOGGER.info(
+            'DID NOT MERGE PR %s on %s: %s',
+            pr.number, repo.full_name, reason)
+
+    return did_merge, reason
