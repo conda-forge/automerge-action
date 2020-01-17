@@ -27,7 +27,7 @@ def create_api_sessions(github_token):
     sess.headers = {
         "Accept": "; ".join([
             "application/vnd.github.v3+json",
-            # special beta api for chck_run endpoint
+            # special beta api for check_suites endpoint
             "application/vnd.github.antiope-preview+json",
         ]),
         "Authorization": f"token {github_token}",

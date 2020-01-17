@@ -21,7 +21,7 @@ def main():
 
     LOGGER.info('github event: %s', event_name)
 
-    if event_name in ['status', 'check_run', 'schedule', 'push']:
+    if event_name in ['status', 'check_run', 'check_suite', 'schedule', 'push']:
         repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
         for pr in repo.get_pulls():
             automerge_pr(repo, pr, sess)

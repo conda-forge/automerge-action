@@ -11,9 +11,8 @@ LOGGER = logging.getLogger(__name__)
 ALLOWED_USERS = ['regro-cf-autotick-bot']
 
 # action always ignores itself
-# github actions use the check_run API
-IGNORED_CHECKS = ['regro-cf-autotick-bot-action']
-
+# github actions use the check_suite API
+IGNORED_CHECKS = ['github-actions']
 
 # always ignore the linter since it is not reliable
 IGNORED_STATUSES = ['conda-forge-linter']
@@ -35,7 +34,7 @@ def _automerge_me(cfg):
     wait=tenacity.wait_random_exponential(multiplier=0.1))
 def _get_checks(repo, pr, session):
     return session.get(
-        "https://api.github.com/repos/%s/commits/%s/check-runs" % (
+        "https://api.github.com/repos/%s/commits/%s/check-suites" % (
             repo.full_name, pr.head.sha))
 
 
@@ -55,14 +54,15 @@ def _check_github_checks(checks):
     """
     check_states = {}
     for check in checks:
-        if check['name'] not in IGNORED_CHECKS:
+        name = check['app']['slug']
+        if name not in IGNORED_CHECKS:
             if check['status'] != 'completed':
-                check_states[check['name']] = None
+                check_states[name] = None
             else:
                 if check['conclusion'] in BAD_STATES:
-                    check_states[check['name']] = False
+                    check_states[name] = False
                 else:
-                    check_states[check['name']] = True
+                    check_states[name] = True
 
     for name, good in check_states.items():
         LOGGER.info('check: name|state = %s|%s', name, good)
@@ -190,7 +190,7 @@ def _automerge_pr(repo, pr, session):
 
     # now check checks
     checks = _get_checks(repo, pr, session)
-    checks_ok = _check_github_checks(checks.json()['check_runs'])
+    checks_ok = _check_github_checks(checks.json()['check_suites'])
     if not checks_ok and checks_ok is not None:
         return False, "PR has failing or pending checks"
 

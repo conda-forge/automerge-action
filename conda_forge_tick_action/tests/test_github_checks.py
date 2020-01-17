@@ -9,7 +9,7 @@ def test_check_github_checks_nochecks():
 def test_check_github_checks_ignores_self():
     checks = [
         {
-            'name': 'regro-cf-autotick-bot-action',
+            'app': {'slug': 'github-actions'},
             'status': 'blah',
             'conclusion': 'blah',
         },
@@ -21,12 +21,12 @@ def test_check_github_checks_ignores_self():
 def test_check_github_checks_all_pending():
     checks = [
         {
-            'name': 'c1',
+            'app': {'slug': 'c1'},
             'status': 'blah',
             'conclusion': 'blah',
         },
         {
-            'name': 'c2',
+            'app': {'slug': 'c2'},
             'status': 'blah',
             'conclusion': 'blah',
         },
@@ -38,12 +38,12 @@ def test_check_github_checks_all_pending():
 def test_check_github_checks_all_fail():
     checks = [
         {
-            'name': 'c1',
+            'app': {'slug': 'c1'},
             'status': 'completed',
             'conclusion': 'error',
         },
         {
-            'name': 'c2',
+            'app': {'slug': 'c2'},
             'status': 'completed',
             'conclusion': 'failure',
         },
@@ -55,12 +55,12 @@ def test_check_github_checks_all_fail():
 def test_check_github_checks_all_success():
     checks = [
         {
-            'name': 'c1',
+            'app': {'slug': 'c1'},
             'status': 'completed',
             'conclusion': 'success',
         },
         {
-            'name': 'c2',
+            'app': {'slug': 'c2'},
             'status': 'completed',
             'conclusion': 'success',
         },
@@ -72,12 +72,12 @@ def test_check_github_checks_all_success():
 def test_check_github_checks_success_plus_pending():
     checks = [
         {
-            'name': 'c1',
+            'app': {'slug': 'c1'},
             'status': 'blah',
             'conclusion': 'success',
         },
         {
-            'name': 'c2',
+            'app': {'slug': 'c2'},
             'status': 'completed',
             'conclusion': 'success',
         },
@@ -89,17 +89,17 @@ def test_check_github_checks_success_plus_pending():
 def test_check_github_checks_success_plus_fail():
     checks = [
         {
-            'name': 'c1',
+            'app': {'slug': 'c1'},
             'status': 'completed',
             'conclusion': 'error',
         },
         {
-            'name': 'c2',
+            'app': {'slug': 'c2'},
             'status': 'completed',
             'conclusion': 'failure',
         },
         {
-            'name': 'c3',
+            'app': {'slug': 'c3'},
             'status': 'completed',
             'conclusion': 'success',
         },
@@ -111,17 +111,17 @@ def test_check_github_checks_success_plus_fail():
 def test_check_github_checks_pending_plus_fail():
     checks = [
         {
-            'name': 'c1',
+            'app': {'slug': 'c1'},
             'status': 'completed',
             'conclusion': 'error',
         },
         {
-            'name': 'c2',
+            'app': {'slug': 'c2'},
             'status': 'completed',
             'conclusion': 'failure',
         },
         {
-            'name': 'c3',
+            'app': {'slug': 'c3'},
             'status': 'blah',
             'conclusion': 'success',
         },
@@ -133,22 +133,22 @@ def test_check_github_checks_pending_plus_fail():
 def test_check_github_checks_pending_plus_success_plus_fail():
     checks = [
         {
-            'name': 'c1',
+            'app': {'slug': 'c1'},
             'status': 'completed',
             'conclusion': 'error',
         },
         {
-            'name': 'c2',
+            'app': {'slug': 'c2'},
             'status': 'completed',
             'conclusion': 'failure',
         },
         {
-            'name': 'c3',
+            'app': {'slug': 'c3'},
             'status': 'blah',
             'conclusion': 'success',
         },
         {
-            'name': 'c4',
+            'app': {'slug': 'c4'},
             'status': 'completed',
             'conclusion': 'success',
         },
