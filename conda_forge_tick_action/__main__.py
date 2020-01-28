@@ -20,6 +20,7 @@ def main():
     event_name = os.environ['GITHUB_EVENT_NAME'].lower()
 
     LOGGER.info('github event: %s', event_name)
+    LOGGER.info('github event data: %s', event_data)
 
     if event_name in ['status', 'check_run', 'check_suite', 'schedule', 'push']:
         repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
