@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import pprint
 
 from .api_sessions import create_api_sessions
 from .automerge import automerge_pr
@@ -20,12 +21,18 @@ def main():
     event_name = os.environ['GITHUB_EVENT_NAME'].lower()
 
     LOGGER.info('github event: %s', event_name)
-    LOGGER.info('github event data: %s', event_data)
+    LOGGER.info('github event data:\n%s', pprint.pformat(event_data))
 
-    if event_name in ['status', 'check_run', 'check_suite', 'schedule', 'push']:
+    if event_name in ['status', 'check_suite']:
+        if event_name == 'status':
+            sha = event_data['sha']
+        elif event_name == 'check_suite':
+            sha = event_data['check_suite']['head_sha']
+
         repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
         for pr in repo.get_pulls():
-            automerge_pr(repo, pr, sess)
+            if pr.head.sha == sha:
+                automerge_pr(repo, pr, sess)
 
     elif event_name in ['pull_request', 'pull_request_review']:
         event_data = event_data['pull_request']
