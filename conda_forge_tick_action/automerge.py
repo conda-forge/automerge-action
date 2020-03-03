@@ -223,7 +223,7 @@ def _automerge_pr(repo, pr, session):
     merge_status = pr.merge(
         commit_message="automerged PR by regro-cf-autotick-bot-action",
         commit_title=pr.title,
-        merge_method='squash',
+        merge_method='merge',
         sha=pr.head.sha)
     if not merge_status.merged:
         return (
