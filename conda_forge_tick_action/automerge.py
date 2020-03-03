@@ -157,7 +157,10 @@ def _ignore_appveyor(cfg):
     return False
 
 
-def _automerge_pr(repo, pr, session):
+def _check_pr(pr, cfg):
+    if any(label.name == "automerge" for label in pr.get_labels()):
+        return True, None
+    
     # only allowed users
     if pr.user.login not in ALLOWED_USERS:
         return False, "user %s cannot automerge" % pr.user.login
@@ -166,13 +169,22 @@ def _automerge_pr(repo, pr, session):
     if '[bot-automerge]' not in pr.title:
         return False, "PR does not have the '[bot-automerge]' slug in the title"
 
-    # now load the the conda-forge config
-    with open(os.path.join(os.environ['GITHUB_WORKSPACE'], 'conda-forge.yml')) as fp:
-        cfg = YAML().load(fp)
-
     # can we automerge in this feedstock?
     if not _automerge_me(cfg):
         return False, "automated bot merges are turned off for this feedstock"
+
+    return True, None
+
+
+def _automerge_pr(repo, pr, session):
+    # load the the conda-forge config
+    with open(os.path.join(os.environ['GITHUB_WORKSPACE'], 'conda-forge.yml')) as fp:
+        cfg = YAML().load(fp)
+
+    allowed, msg = _check_pr(pr, cfg)
+
+    if not allowed:
+        return False, msg
 
     # now check statuses
     commit = repo.get_commit(pr.head.sha)
