@@ -48,6 +48,12 @@ The GitHub action always points to the `prod` tag of the
 Docker image.
 
  - To redeploy the bot, push a new image to the `prod` tag.
+
+   ```
+   docker build -t condaforge/rego-cf-autotick-bot-action:prod .
+   docker push condaforge/rego-cf-autotick-bot-action:prod
+   ```
+
  - To take the bot down, delete the tag from the Docker repository. The GitHub Action
    will still run in this case, but it will always fail.
 
