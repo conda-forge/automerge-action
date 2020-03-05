@@ -15,10 +15,22 @@ def test_automerge_pr_bad_user():
     pr = MagicMock()
     pr.user.login = 'blah'
 
-    did_merge, reason = automerge_pr(repo, pr, None)
+    _environ = os.environ.copy()
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            os.environ['GITHUB_WORKSPACE'] = tmpdir
+            yaml = YAML()
+            with open(os.path.join(tmpdir, 'conda-forge.yml'), 'w') as fp:
+                yaml.dump({}, fp)
 
-    assert not did_merge
-    assert "user blah" in reason
+            did_merge, reason = automerge_pr(repo, pr, None)
+
+            assert not did_merge
+            assert "user blah" in reason
+
+    finally:
+        os.environ.clear()
+        os.environ.update(_environ)
 
 
 def test_automerge_pr_no_title_slug():
@@ -29,10 +41,22 @@ def test_automerge_pr_no_title_slug():
     pr.user.login = 'regro-cf-autotick-bot'
     pr.title = "blah"
 
-    did_merge, reason = automerge_pr(repo, pr, None)
+    _environ = os.environ.copy()
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            os.environ['GITHUB_WORKSPACE'] = tmpdir
+            yaml = YAML()
+            with open(os.path.join(tmpdir, 'conda-forge.yml'), 'w') as fp:
+                yaml.dump({}, fp)
 
-    assert not did_merge
-    assert "slug in the title" in reason
+            did_merge, reason = automerge_pr(repo, pr, None)
+
+            assert not did_merge
+            assert "slug in the title" in reason
+
+    finally:
+        os.environ.clear()
+        os.environ.update(_environ)
 
 
 @pytest.mark.parametrize('cfg', [
@@ -73,42 +97,6 @@ def test_automerge_pr_feedstock_off(cfg):
 
 
 @unittest.mock.patch('conda_forge_tick_action.automerge._check_github_statuses')
-def test_automerge_pr_feedstock_use_appveyor(_check_github_statuses_mk):
-    _check_github_statuses_mk.return_value = False
-    repo = MagicMock()
-    repo.full_name = "go"
-
-    pr = MagicMock()
-    pr.user.login = 'regro-cf-autotick-bot'
-    pr.title = "[bot-automerge] blah"
-
-    _environ = os.environ.copy()
-    try:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            os.environ['GITHUB_WORKSPACE'] = tmpdir
-            os.makedirs(os.path.join(tmpdir, '.ci_support'), exist_ok=True)
-            with open(os.path.join(tmpdir, '.ci_support', 'win_.yaml'), 'w') as fp:
-                fp.write("blah")
-            with open(os.path.join(tmpdir, '.ci_support', 'linux_.yaml'), 'w') as fp:
-                fp.write("blah")
-
-            yaml = YAML()
-            with open(os.path.join(tmpdir, 'conda-forge.yml'), 'w') as fp:
-                yaml.dump(
-                    {'bot': {'automerge': True}, 'provider': {'win': 'appveyor'}}, fp)
-
-            did_merge, reason = automerge_pr(repo, pr, None)
-
-            assert not did_merge
-            assert "pending statuses" in reason
-            assert (_check_github_statuses_mk.call_args[1]['extra_ignored_statuses']
-                    is None)
-    finally:
-        os.environ.clear()
-        os.environ.update(_environ)
-
-
-@unittest.mock.patch('conda_forge_tick_action.automerge._check_github_statuses')
 def test_automerge_pr_feedstock_statuses_fail(_check_github_statuses_mk):
     _check_github_statuses_mk.return_value = False
     repo = MagicMock()
@@ -136,8 +124,6 @@ def test_automerge_pr_feedstock_statuses_fail(_check_github_statuses_mk):
 
             assert not did_merge
             assert "pending statuses" in reason
-            assert (_check_github_statuses_mk.call_args[1]['extra_ignored_statuses'] ==
-                    ['continuous-integration/appveyor/pr'])
 
     finally:
         os.environ.clear()
@@ -177,8 +163,6 @@ def test_automerge_pr_feedstock_checks_fail(
 
             assert not did_merge
             assert "pending checks" in reason
-            assert (_check_github_statuses_mk.call_args[1]['extra_ignored_statuses'] ==
-                    ['continuous-integration/appveyor/pr'])
 
     finally:
         os.environ.clear()
@@ -218,8 +202,6 @@ def test_automerge_pr_feedstock_no_statuses_or_checks(
 
             assert not did_merge
             assert "No checks or statuses have returned success" in reason
-            assert (_check_github_statuses_mk.call_args[1]['extra_ignored_statuses'] ==
-                    ['continuous-integration/appveyor/pr'])
 
     finally:
         os.environ.clear()

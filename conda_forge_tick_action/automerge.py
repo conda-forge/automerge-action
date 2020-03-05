@@ -1,5 +1,4 @@
 import os
-import glob
 import logging
 import datetime
 
@@ -140,27 +139,10 @@ def _check_github_statuses(statuses, extra_ignored_statuses=None):
             return True
 
 
-def _ignore_appveyor(cfg):
-    """Compute if we should ignore appveyor from the `conda-forge.yml`."""
-    fnames = glob.glob(
-        os.path.join(os.environ['GITHUB_WORKSPACE'], '.ci_support', 'win*.yaml')
-    )
-
-    # windows is not on, so skip
-    if len(fnames) == 0:
-        return True
-
-    # windows is on but maybe we only care about azure?
-    if cfg.get('provider', {}).get('win', 'azure') in ['azure', 'default']:
-        return True
-
-    return False
-
-
 def _check_pr(pr, cfg):
     if any(label.name == "automerge" for label in pr.get_labels()):
         return True, None
-    
+
     # only allowed users
     if pr.user.login not in ALLOWED_USERS:
         return False, "user %s cannot automerge" % pr.user.login
@@ -189,14 +171,7 @@ def _automerge_pr(repo, pr, session):
     # now check statuses
     commit = repo.get_commit(pr.head.sha)
     statuses = commit.get_statuses()
-    if _ignore_appveyor(cfg):
-        extra_ignored_statuses = ['continuous-integration/appveyor/pr']
-    else:
-        extra_ignored_statuses = None
-    status_ok = _check_github_statuses(
-        statuses,
-        extra_ignored_statuses=extra_ignored_statuses,
-    )
+    status_ok = _check_github_statuses(statuses)
     if not status_ok and status_ok is not None:
         return False, "PR has failing or pending statuses"
 
