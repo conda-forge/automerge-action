@@ -13,8 +13,8 @@ ALLOWED_USERS = ['regro-cf-autotick-bot']
 # github actions use the check_suite API
 IGNORED_CHECKS = ['github-actions']
 
-# always ignore the linter since it is not reliable
-IGNORED_STATUSES = ['conda-forge-linter']
+# statuses to ignore by default
+IGNORED_STATUSES = []
 
 # sets of states that indicate good / bad / neutral in the github API
 NEUTRAL_STATES = ['pending']
