@@ -38,6 +38,16 @@ bot:
   automerge: False
 ```
 
+To ignore the linter, add the following.
+
+```yaml
+bot:
+  automerge: False
+  automerge_options:
+    ignored_statuses:
+      - conda-forge-linter
+```
+
 The default is currently `False` if these entries are not present. Set them to `True`
 to turn on automerging.
 
