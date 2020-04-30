@@ -18,7 +18,7 @@ IGNORED_STATUSES = []
 
 # sets of states that indicate good / bad / neutral in the github API
 NEUTRAL_STATES = ['pending']
-BAD_STATES = ['failure', 'error']
+BAD_STATES = ['failure', 'error', 'action_required', 'canceled', 'timed_out', 'failed']
 GOOD_MERGE_STATES = ["clean", "has_hooks", "unknown", "unstable"]
 
 
