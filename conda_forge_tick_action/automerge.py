@@ -13,8 +13,8 @@ ALLOWED_USERS = ['regro-cf-autotick-bot']
 # github actions use the check_suite API
 IGNORED_CHECKS = ['github-actions']
 
-# always ignore the linter since it is not reliable
-IGNORED_STATUSES = ['conda-forge-linter']
+# statuses to ignore by default
+IGNORED_STATUSES = []
 
 # sets of states that indicate good / bad / neutral in the github API
 NEUTRAL_STATES = ['pending']
@@ -23,9 +23,14 @@ GOOD_MERGE_STATES = ["clean", "has_hooks", "unknown", "unstable"]
 
 
 def _automerge_me(cfg):
-    """Compute if feedstock allows automeges from `conda-forge.yml`"""
+    """Compute if feedstock allows automerges from `conda-forge.yml`"""
     # TODO turn False to True when we default to automerge
     return cfg.get('bot', {}).get('automerge', False)
+
+
+def _get_ignored_statuses(cfg):
+    """Compute statuses to ignore for automerge from conda-forge.yml"""
+    return cfg.get('bot', {}).get('automerge_options', {}).get('ignored_statuses', [])
 
 
 @tenacity.retry(
@@ -171,7 +176,8 @@ def _automerge_pr(repo, pr, session):
     # now check statuses
     commit = repo.get_commit(pr.head.sha)
     statuses = commit.get_statuses()
-    status_ok = _check_github_statuses(statuses)
+    ignored_statuses = _get_ignored_statuses(cfg)
+    status_ok = _check_github_statuses(statuses, ignored_statuses)
     if not status_ok and status_ok is not None:
         return False, "PR has failing or pending statuses"
 
