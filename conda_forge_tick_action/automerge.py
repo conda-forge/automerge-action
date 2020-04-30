@@ -63,10 +63,10 @@ def _check_github_checks(checks):
             if check['status'] != 'completed':
                 check_states[name] = None
             else:
-                if check['conclusion'] in BAD_STATES:
-                    check_states[name] = False
-                else:
+                if check['conclusion'] == "success":
                     check_states[name] = True
+                else:
+                    check_states[name] = False
 
     for name, good in check_states.items():
         LOGGER.info('check: name|state = %s|%s', name, good)
