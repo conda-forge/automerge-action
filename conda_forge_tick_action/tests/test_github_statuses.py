@@ -1,6 +1,8 @@
+import unittest
 import datetime
+import pytest
 
-from ..automerge import _check_github_statuses
+from ..automerge import _get_github_statuses
 
 
 class DummyStatus(object):
@@ -14,109 +16,50 @@ class DummyStatus(object):
         self.updated_at = updated_at
 
 
-def test_check_github_statuses_ignores_linter():
-    stat = _check_github_statuses([
-        DummyStatus("conda-forge-linter", "success", datetime.datetime.now())
-    ])
-    assert stat is None
-
-
-def test_check_github_statuses_extra_ignores():
-    stat = _check_github_statuses(
-        [
-            DummyStatus("conda-forge-linter", "success", datetime.datetime.now()),
-            DummyStatus("blah", "cess", datetime.datetime.now()),
-        ],
-        extra_ignored_statuses=["blah"],
-    )
-    assert stat is None
-
-
-def test_check_github_statuses_nostatuses():
-    stat = _check_github_statuses([])
-    assert stat is None
-
-
-def test_check_github_statuses_uses_latest():
-    stat = _check_github_statuses(
-        [
-            DummyStatus("blah", "pending", datetime.datetime.now()),
-            DummyStatus("blah", "success", datetime.datetime.now()),
-        ],
-    )
-    assert stat
-
-
-def test_heck_github_statuses_all_pending():
-    stat = _check_github_statuses(
-        [
-            DummyStatus("blah", "pending", datetime.datetime.now()),
-            DummyStatus("blah1", "pending", datetime.datetime.now()),
-        ],
-    )
-    assert not stat
-
-
-def test_heck_github_statuses_all_failure():
-    stat = _check_github_statuses(
-        [
-            DummyStatus("blah", "failure", datetime.datetime.now()),
-            DummyStatus("blah1", "error", datetime.datetime.now()),
-        ],
-    )
-    assert not stat
-
-
-def test_heck_github_statuses_all_success():
-    stat = _check_github_statuses(
-        [
-            DummyStatus("blah", "success", datetime.datetime.now()),
-            DummyStatus("blah1", "success", datetime.datetime.now()),
-        ],
-    )
-    assert stat
-
-
-def test_heck_github_statuses_pending_plus_failure():
-    stat = _check_github_statuses(
-        [
-            DummyStatus("blah", "failure", datetime.datetime.now()),
-            DummyStatus("blah1", "error", datetime.datetime.now()),
-            DummyStatus("blah2", "pending", datetime.datetime.now()),
-        ],
-    )
-    assert not stat
-
-
-def test_heck_github_statuses_pending_plus_success():
-    stat = _check_github_statuses(
-        [
-            DummyStatus("blah", "success", datetime.datetime.now()),
-            DummyStatus("blah1", "error", datetime.datetime.now()),
-            DummyStatus("blah2", "pending", datetime.datetime.now()),
-        ],
-    )
-    assert not stat
-
-
-def test_heck_github_statuses_success_plus_failure():
-    stat = _check_github_statuses(
-        [
-            DummyStatus("blah", "success", datetime.datetime.now()),
-            DummyStatus("blah1", "error", datetime.datetime.now()),
-            DummyStatus("blah2", "failure", datetime.datetime.now()),
-        ],
-    )
-    assert not stat
-
-
-def test_heck_github_statuses_pending_plus_failure_plus_success():
-    stat = _check_github_statuses(
-        [
-            DummyStatus("blah", "success", datetime.datetime.now()),
-            DummyStatus("blah1", "error", datetime.datetime.now()),
-            DummyStatus("blah2", "failure", datetime.datetime.now()),
-            DummyStatus("blah3", "pending", datetime.datetime.now()),
-        ],
-    )
-    assert not stat
+@pytest.mark.parametrize("stats,ret", [
+    ([], {}),
+    ([
+        DummyStatus("blah", "pending", datetime.datetime.now()),
+        DummyStatus("blah", "success", datetime.datetime.now()),
+    ], {"blah": True}),
+    ([
+        DummyStatus("blah", "pending", datetime.datetime.now()),
+        DummyStatus("blah1", "pending", datetime.datetime.now()),
+    ], {"blah": None, "blah1": None}),
+    ([
+        DummyStatus("blah", "failure", datetime.datetime.now()),
+        DummyStatus("blah1", "error", datetime.datetime.now()),
+    ], {"blah": False, "blah1": False}),
+    ([
+        DummyStatus("blah", "success", datetime.datetime.now()),
+        DummyStatus("blah1", "success", datetime.datetime.now()),
+    ], {"blah": True, "blah1": True}),
+    ([
+        DummyStatus("blah", "failure", datetime.datetime.now()),
+        DummyStatus("blah1", "error", datetime.datetime.now()),
+        DummyStatus("blah2", "pending", datetime.datetime.now()),
+    ], {"blah": False, "blah1": False, "blah2": None}),
+    ([
+        DummyStatus("blah", "success", datetime.datetime.now()),
+        DummyStatus("blah1", "error", datetime.datetime.now()),
+        DummyStatus("blah2", "pending", datetime.datetime.now()),
+    ], {"blah": True, "blah1": False, "blah2": None}),
+    ([
+        DummyStatus("blah", "success", datetime.datetime.now()),
+        DummyStatus("blah1", "error", datetime.datetime.now()),
+        DummyStatus("blah2", "failure", datetime.datetime.now()),
+    ], {"blah": True, "blah1": False, "blah2": False}),
+    ([
+        DummyStatus("blah", "success", datetime.datetime.now()),
+        DummyStatus("blah1", "error", datetime.datetime.now()),
+        DummyStatus("blah2", "failure", datetime.datetime.now()),
+        DummyStatus("blah3", "pending", datetime.datetime.now()),
+    ], {"blah": True, "blah1": False, "blah2": False, "blah3": None}),
+])
+def test_get_github_statuses(stats, ret):
+    repo = unittest.mock.MagicMock()
+    pr = unittest.mock.MagicMock()
+    repo.get_commit.return_value.get_statuses.return_value = stats
+    stat = _get_github_statuses(repo, pr)
+    assert stat == ret
+    repo.get_commit.assert_called_once_with(pr.head.sha)

@@ -1,25 +1,32 @@
-from ..automerge import _check_github_checks
+import unittest
+from ..automerge import _get_github_checks
 
 
-def test_check_github_checks_nochecks():
-    stat = _check_github_checks([])
-    assert stat is None
+@unittest.mock.patch("conda_forge_tick_action.automerge._get_checks")
+def test_get_github_checks_nochecks(get_mock):
+    get_mock.return_value = {}
+    stat = _get_github_checks(1, 2, 3)
+    get_mock.assert_called_once_with(1, 2, 3)
+    assert stat == {}
 
 
-def test_check_github_checks_ignores_self():
-    checks = [
+@unittest.mock.patch("conda_forge_tick_action.automerge._get_checks")
+def test_get_github_checks_ignores_self(get_mock):
+    get_mock.return_value = [
         {
             'app': {'slug': 'github-actions'},
             'status': 'blah',
             'conclusion': 'blah',
         },
     ]
-    stat = _check_github_checks(checks)
-    assert stat is None
+    stat = _get_github_checks(1, 2, 3)
+    get_mock.assert_called_once_with(1, 2, 3)
+    assert stat == {}
 
 
-def test_check_github_checks_all_pending():
-    checks = [
+@unittest.mock.patch("conda_forge_tick_action.automerge._get_checks")
+def test_check_github_checks_all_pending(get_mock):
+    get_mock.return_value = [
         {
             'app': {'slug': 'c1'},
             'status': 'blah',
@@ -31,12 +38,14 @@ def test_check_github_checks_all_pending():
             'conclusion': 'blah',
         },
     ]
-    stat = _check_github_checks(checks)
-    assert not stat
+    stat = _get_github_checks(1, 2, 3)
+    get_mock.assert_called_once_with(1, 2, 3)
+    assert stat == {"c1": None, "c2": None}
 
 
-def test_check_github_checks_all_fail():
-    checks = [
+@unittest.mock.patch("conda_forge_tick_action.automerge._get_checks")
+def test_check_github_checks_all_fail(get_mock):
+    get_mock.return_value = [
         {
             'app': {'slug': 'c1'},
             'status': 'completed',
@@ -48,12 +57,14 @@ def test_check_github_checks_all_fail():
             'conclusion': 'failure',
         },
     ]
-    stat = _check_github_checks(checks)
-    assert not stat
+    stat = _get_github_checks(1, 2, 3)
+    get_mock.assert_called_once_with(1, 2, 3)
+    assert stat == {"c1": False, "c2": False}
 
 
-def test_check_github_checks_all_success():
-    checks = [
+@unittest.mock.patch("conda_forge_tick_action.automerge._get_checks")
+def test_check_github_checks_all_success(get_mock):
+    get_mock.return_value = [
         {
             'app': {'slug': 'c1'},
             'status': 'completed',
@@ -65,12 +76,14 @@ def test_check_github_checks_all_success():
             'conclusion': 'success',
         },
     ]
-    stat = _check_github_checks(checks)
-    assert stat
+    stat = _get_github_checks(1, 2, 3)
+    get_mock.assert_called_once_with(1, 2, 3)
+    assert stat == {"c1": True, "c2": True}
 
 
-def test_check_github_checks_success_plus_pending():
-    checks = [
+@unittest.mock.patch("conda_forge_tick_action.automerge._get_checks")
+def test_check_github_checks_success_plus_pending(get_mock):
+    get_mock.return_value = [
         {
             'app': {'slug': 'c1'},
             'status': 'blah',
@@ -82,12 +95,14 @@ def test_check_github_checks_success_plus_pending():
             'conclusion': 'success',
         },
     ]
-    stat = _check_github_checks(checks)
-    assert not stat
+    stat = _get_github_checks(1, 2, 3)
+    get_mock.assert_called_once_with(1, 2, 3)
+    assert stat == {"c1": None, "c2": True}
 
 
-def test_check_github_checks_success_plus_fail():
-    checks = [
+@unittest.mock.patch("conda_forge_tick_action.automerge._get_checks")
+def test_check_github_checks_success_plus_fail(get_mock):
+    get_mock.return_value = [
         {
             'app': {'slug': 'c1'},
             'status': 'completed',
@@ -104,12 +119,14 @@ def test_check_github_checks_success_plus_fail():
             'conclusion': 'success',
         },
     ]
-    stat = _check_github_checks(checks)
-    assert not stat
+    stat = _get_github_checks(1, 2, 3)
+    get_mock.assert_called_once_with(1, 2, 3)
+    assert stat == {"c1": False, "c2": False, "c3": True}
 
 
-def test_check_github_checks_pending_plus_fail():
-    checks = [
+@unittest.mock.patch("conda_forge_tick_action.automerge._get_checks")
+def test_check_github_checks_pending_plus_fail(get_mock):
+    get_mock.return_value = [
         {
             'app': {'slug': 'c1'},
             'status': 'completed',
@@ -126,12 +143,14 @@ def test_check_github_checks_pending_plus_fail():
             'conclusion': 'success',
         },
     ]
-    stat = _check_github_checks(checks)
-    assert not stat
+    stat = _get_github_checks(1, 2, 3)
+    get_mock.assert_called_once_with(1, 2, 3)
+    assert stat == {"c1": False, "c2": False, "c3": None}
 
 
-def test_check_github_checks_pending_plus_success_plus_fail():
-    checks = [
+@unittest.mock.patch("conda_forge_tick_action.automerge._get_checks")
+def test_check_github_checks_pending_plus_success_plus_fail(get_mock):
+    get_mock.return_value = [
         {
             'app': {'slug': 'c1'},
             'status': 'completed',
@@ -153,5 +172,6 @@ def test_check_github_checks_pending_plus_success_plus_fail():
             'conclusion': 'success',
         },
     ]
-    stat = _check_github_checks(checks)
-    assert not stat
+    stat = _get_github_checks(1, 2, 3)
+    get_mock.assert_called_once_with(1, 2, 3)
+    assert stat == {"c1": False, "c2": False, "c3": None, "c4": True}

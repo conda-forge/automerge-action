@@ -21,8 +21,8 @@ def main():
     event_name = os.environ['GITHUB_EVENT_NAME'].lower()
 
     LOGGER.info('github event: %s', event_name)
-    LOGGER.info('github event data:\n%s', pprint.pformat(event_data))
 
+    raise_error = False
     if event_name in ['status', 'check_suite']:
         if event_name == 'status':
             sha = event_data['sha']
@@ -44,4 +44,19 @@ def main():
 
         automerge_pr(repo, pr, sess)
     else:
+        raise_error = True
+
+    print(
+        "\n\n===================================================================="
+        "===============================",
+        flush=True,
+    )
+    print(
+        "=================================================================="
+        "=================================",
+        flush=True,
+    )
+    LOGGER.info('github event data:\n%s\n\n', pprint.pformat(event_data))
+
+    if raise_error:
         raise ValueError('GitHub event %s cannot be processed!' % event_name)

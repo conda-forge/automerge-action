@@ -45,7 +45,7 @@ bot:
   automerge: False
   automerge_options:
     ignored_statuses:
-      - conda-forge-linter
+      - linter
 ```
 
 The default is currently `False` if these entries are not present. Set them to `True`

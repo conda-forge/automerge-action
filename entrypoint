@@ -4,6 +4,9 @@ echo " "
 echo "==================================================================================================="
 echo "==================================================================================================="
 
+git config --global user.name ${GITHUB_ACTOR}
+git config --global user.email "github-actions@email.com"
+
 source /opt/conda/etc/profile.d/conda.sh
 
 conda activate base
