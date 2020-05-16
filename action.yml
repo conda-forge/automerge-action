@@ -1,5 +1,5 @@
 name: 'automerge-action'
-description: 'regro-cf-autotick-bot GitHub Action'
+description: 'conda-forge automerge GitHub Action'
 author: conda-forge core (@conda-forge/core)
 inputs:
   github_token:
