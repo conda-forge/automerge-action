@@ -50,9 +50,9 @@ install:
 script:
   - |
     if [[ "${DO_DOCKER_BUILD}" == "0" ]]; then
-      flake8 conda_forge_tick_action
-      pytest -vv conda_forge_tick_action
-      command -v run-regro-cf-autotick-bot-action
+      flake8 conda_forge_automerge_action
+      pytest -vv conda_forge_automerge_action
+      command -v run-automerge-action
     else
       docker build -t test .
     fi

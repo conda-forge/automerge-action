@@ -4,7 +4,7 @@ FROM frolvlad/alpine-glibc:alpine-3.10
 # https://github.com/Docker-Hub-frolvlad/docker-alpine-miniconda3
 COPY BASE_IMAGE_LICENSE /
 
-LABEL maintainer="conda-forge bot subteam (@conda-forge/bot)"
+LABEL maintainer="conda-forge core (@conda-forge/core)"
 
 ENV LANG en_US.UTF-8
 

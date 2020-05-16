@@ -1,11 +1,11 @@
-# regro-cf-autotick-bot-action
-[![Build Status](https://travis-ci.com/regro/cf-autotick-bot-action.svg?branch=master)](https://travis-ci.com/regro/cf-autotick-bot-action)
+# automerge-action
+[![Build Status](https://travis-ci.com/conda-forge/automerge-action.svg?branch=master)](https://travis-ci.com/conda-forge/automerge-action)
 
-github action for the conda-forge autotick bot
+github action automerge on conda-forge
 
 ## Usage
 
-To use this action, add the following YAML file at `.github/workflows/main.yml`
+To use this action, add the following YAML file at `.github/workflows/automerge.yml`
 
 ```yaml
 on:
@@ -15,15 +15,15 @@ on:
       - completed
 
 jobs:
-  regro-cf-autotick-bot-action:
+  automerge-action:
     runs-on: ubuntu-latest
-    name: regro-cf-autotick-bot-action
+    name: automerge
     steps:
       - name: checkout
         uses: actions/checkout@v2
-      - name: regro-cf-autotick-bot-action
-        id: regro-cf-autotick-bot-action
-        uses: regro/cf-autotick-bot-action@master
+      - name: automerge-action
+        id: automerge-action
+        uses: conda-forge/automerge-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -54,14 +54,14 @@ to turn on automerging.
 ## Deployment
 
 The GitHub action always points to the `prod` tag of the
-[condaforge/rego-cf-autotick-bot-action](https://hub.docker.com/repository/docker/condaforge/rego-cf-autotick-bot-action)
+[condaforge/automerge-action](https://hub.docker.com/repository/docker/condaforge/automerge-action)
 Docker image.
 
  - To redeploy the bot, push a new image to the `prod` tag.
 
    ```
-   docker build -t condaforge/rego-cf-autotick-bot-action:prod .
-   docker push condaforge/rego-cf-autotick-bot-action:prod
+   docker build -t condaforge/automerge-action:prod .
+   docker push condaforge/automerge-action:prod
    ```
 
  - To take the bot down, delete the tag from the Docker repository. The GitHub Action
@@ -78,5 +78,5 @@ The code has a test suite. However, to test it live, you can do one of two thing
    should not be merged by the bot.
 
 2. You can push an image to the `dev` tag of the Docker repo. Then, point the action in
-   the `.github/workflows/main.yaml` of your testing repo to the `dev` branch of
-   this repo by changing `regro/cf-autotick-bot-action@master` to `regro/cf-autotick-bot-action@dev`.
+   the `.github/workflows/automerge.yaml` of your testing repo to the `dev` branch of
+   this repo by changing `conda-forge/automerge-action@master` to `conda-forge/automerge-action@dev`.

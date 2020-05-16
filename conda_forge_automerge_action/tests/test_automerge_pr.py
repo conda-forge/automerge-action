@@ -6,7 +6,7 @@ import pytest
 from ..automerge import automerge_pr
 
 
-@unittest.mock.patch("conda_forge_tick_action.automerge._get_conda_forge_config")
+@unittest.mock.patch("conda_forge_automerge_action.automerge._get_conda_forge_config")
 def test_automerge_pr_bad_user(get_cfg_mock):
     get_cfg_mock.return_value = {}
     repo = MagicMock()
@@ -22,7 +22,7 @@ def test_automerge_pr_bad_user(get_cfg_mock):
     get_cfg_mock.assert_called_once_with(pr)
 
 
-@unittest.mock.patch("conda_forge_tick_action.automerge._get_conda_forge_config")
+@unittest.mock.patch("conda_forge_automerge_action.automerge._get_conda_forge_config")
 def test_automerge_pr_no_title_slug(get_cfg_mock):
     get_cfg_mock.return_value = {}
     repo = MagicMock()
@@ -44,7 +44,7 @@ def test_automerge_pr_no_title_slug(get_cfg_mock):
     {'bot': {}},
     {'bot': {'automerge': False}},
 ])
-@unittest.mock.patch("conda_forge_tick_action.automerge._get_conda_forge_config")
+@unittest.mock.patch("conda_forge_automerge_action.automerge._get_conda_forge_config")
 def test_automerge_pr_feedstock_off(get_cfg_mock, cfg):
     get_cfg_mock.return_value = cfg
     repo = MagicMock()
@@ -62,11 +62,11 @@ def test_automerge_pr_feedstock_off(get_cfg_mock, cfg):
 
 
 @pytest.mark.parametrize("fail", ["check", "status"])
-@unittest.mock.patch("conda_forge_tick_action.automerge._get_conda_forge_config")
+@unittest.mock.patch("conda_forge_automerge_action.automerge._get_conda_forge_config")
 @unittest.mock.patch(
-    'conda_forge_tick_action.automerge._get_required_checks_and_statuses')
-@unittest.mock.patch('conda_forge_tick_action.automerge._get_github_checks')
-@unittest.mock.patch('conda_forge_tick_action.automerge._get_github_statuses')
+    'conda_forge_automerge_action.automerge._get_required_checks_and_statuses')
+@unittest.mock.patch('conda_forge_automerge_action.automerge._get_github_checks')
+@unittest.mock.patch('conda_forge_automerge_action.automerge._get_github_statuses')
 def test_automerge_pr_feedstock_status_or_check_fail(
     stat_mock, check_mock, req_mock, get_cfg_mock, fail
 ):
@@ -97,11 +97,11 @@ def test_automerge_pr_feedstock_status_or_check_fail(
     req_mock.assert_called_once_with(pr, get_cfg_mock.return_value)
 
 
-@unittest.mock.patch("conda_forge_tick_action.automerge._get_conda_forge_config")
+@unittest.mock.patch("conda_forge_automerge_action.automerge._get_conda_forge_config")
 @unittest.mock.patch(
-    'conda_forge_tick_action.automerge._get_required_checks_and_statuses')
-@unittest.mock.patch('conda_forge_tick_action.automerge._get_github_checks')
-@unittest.mock.patch('conda_forge_tick_action.automerge._get_github_statuses')
+    'conda_forge_automerge_action.automerge._get_required_checks_and_statuses')
+@unittest.mock.patch('conda_forge_automerge_action.automerge._get_github_checks')
+@unittest.mock.patch('conda_forge_automerge_action.automerge._get_github_statuses')
 def test_automerge_pr_feedstock_no_statuses_or_checks(
     stat_mock, check_mock, req_mock, get_cfg_mock
 ):

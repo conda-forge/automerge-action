@@ -48,8 +48,8 @@ def test_all_statuses_and_checks_ok(val):
     ".circleci/config.yml"
 ])
 @pytest.mark.parametrize("ignore_linter", ["conda-forge-linter", "linter", None])
-@unittest.mock.patch('conda_forge_tick_action.automerge._run_git_command')
-@unittest.mock.patch('conda_forge_tick_action.automerge.tempfile')
+@unittest.mock.patch('conda_forge_automerge_action.automerge._run_git_command')
+@unittest.mock.patch('conda_forge_automerge_action.automerge.tempfile')
 def test_get_required_checks_and_statuses(
     tmpmock, submock, tmpdir, fname, ignore_linter
 ):
