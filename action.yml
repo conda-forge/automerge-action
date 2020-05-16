@@ -1,0 +1,12 @@
+name: 'regro-cf-autotick-bot-action'
+description: 'regro-cf-autotick-bot GitHub Action'
+author: conda-forge bot subteam (@conda-forge/bot)
+inputs:
+  github_token:
+    description: 'github token'
+    required: true
+runs:
+  using: 'docker'
+  image: 'docker://condaforge/rego-cf-autotick-bot-action:prod'
+  args:
+    - ${{ inputs.github_token }}
