@@ -98,7 +98,7 @@ def _get_github_checks(repo, pr, session):
         A `PullRequest` object for the given PR from the PuGithhub package.
     session : requests.Session
         A `requests` session w/ the correct headers for the GitHub API v3.
-        See `conda_forge_tick_action.api_sessions.create_api_sessions` for
+        See `conda_forge_automerge_action.api_sessions.create_api_sessions` for
         details.
 
     Returns
@@ -391,7 +391,7 @@ def _automerge_pr(repo, pr, session):
 
     # we're good - now merge
     merge_status = pr.merge(
-        commit_message="automerged PR by regro-cf-autotick-bot-action",
+        commit_message="automerged PR by automerge-action",
         commit_title=pr.title,
         merge_method='merge',
         sha=pr.head.sha)
@@ -423,7 +423,7 @@ def automerge_pr(repo, pr, session):
         A `PullRequest` object for the given PR from the PuGithhub package.
     session : requests.Session
         A `requests` session w/ the correct headers for the GitHub API v3.
-        See `conda_forge_tick_action.api_sessions.create_api_sessions` for
+        See `conda_forge_automerge_action.api_sessions.create_api_sessions` for
         details.
 
     Returns
