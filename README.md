@@ -1,4 +1,5 @@
 # automerge-action
+[![tests](https://github.com/conda-forge/automerge-action/actions/workflows/tests.yml/badge.svg)](https://github.com/conda-forge/automerge-action/actions/workflows/tests.yml)
 
 github action automerge on conda-forge
 
