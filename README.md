@@ -1,5 +1,4 @@
 # automerge-action
-[![Build Status](https://travis-ci.com/conda-forge/automerge-action.svg?branch=master)](https://travis-ci.com/conda-forge/automerge-action)
 
 github action automerge on conda-forge
 
