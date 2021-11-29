@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 
 *.ipynb
+cf-autotick-bot-test-package-feedstock
+cf-test-master
