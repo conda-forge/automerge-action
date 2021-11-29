@@ -288,7 +288,7 @@ def _no_extra_pr_commits(pr):
         for i in range(1, len(dts)):
             if dts[i] < dts[i-1]:
                 LOGGER.warning("events are out of order!")
-                return False
+                return None
 
     label_ind = None
     for i, e in enumerate(events):
@@ -297,7 +297,7 @@ def _no_extra_pr_commits(pr):
 
     if label_ind is None:
         LOGGER.warning("could not find 'automerge' label in events!")
-        return False
+        return None
 
     return all(e.event != "committed" for e in events[label_ind+1:])
 
@@ -305,11 +305,15 @@ def _no_extra_pr_commits(pr):
 def _check_pr(pr, cfg):
     """make sure a PR is ok to automerge"""
     if any(label.name == "automerge" for label in pr.get_labels()):
-        if _no_extra_pr_commits(pr):
-            return True, None
+        _no_commits = _no_extra_pr_commits(pr)
+        if _no_commits is None:
+            return False, "could not determine if extra commits were made to PR"
         else:
-            pr.remove_from_labels("automerge")
-            pr.create_issue_comment("""\
+            if _no_commits:
+                return True, None
+            else:
+                pr.remove_from_labels("automerge")
+                pr.create_issue_comment("""\
 Hi! This is the friendly conda-forge automerge bot!
 
 Commits were made to this PR after the `automerge` label was added. For \
@@ -317,7 +321,7 @@ security reasons, I have disabled automerge by removing the `automerge` label. \
 Please add the `automerge` label again (or ask a maintainer to do so) if you'd \
 like to enable automerge again!
 """)
-            return False, "commits were made after the automerge label was added"
+                return False, "commits were made after the automerge label was added"
 
     # only allowed users
     if pr.user.login not in ALLOWED_USERS:
