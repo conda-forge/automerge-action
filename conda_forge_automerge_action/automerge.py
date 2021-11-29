@@ -294,7 +294,6 @@ def _no_extra_pr_commits(pr):
     for i, e in enumerate(events):
         if e.event == "labeled" and e.raw_data["label"]["name"] == "automerge":
             label_ind = i
-            break
 
     if label_ind is None:
         LOGGER.warning("could not find 'automerge' label in events!")
