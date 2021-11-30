@@ -280,10 +280,48 @@ def _all_statuses_and_checks_ok(
     return all(v for v in final_states.values()), final_states
 
 
+def _no_extra_pr_commits(pr):
+    """check that no commits were made after a PR has the automerge label added"""
+    events = [e for e in pr.as_issue().get_timeline()]
+    dts = [e.created_at for e in events if e.created_at is not None]
+    if len(dts) > 1:
+        for i in range(1, len(dts)):
+            if dts[i] < dts[i-1]:
+                LOGGER.warning("events are out of order!")
+                return None
+
+    label_ind = None
+    for i, e in enumerate(events):
+        if e.event == "labeled" and e.raw_data["label"]["name"] == "automerge":
+            label_ind = i
+
+    if label_ind is None:
+        LOGGER.warning("could not find 'automerge' label in events!")
+        return None
+
+    return all(e.event != "committed" for e in events[label_ind+1:])
+
+
 def _check_pr(pr, cfg):
     """make sure a PR is ok to automerge"""
     if any(label.name == "automerge" for label in pr.get_labels()):
-        return True, None
+        _no_commits = _no_extra_pr_commits(pr)
+        if _no_commits is None:
+            return False, "could not determine if extra commits were made to PR"
+        else:
+            if _no_commits:
+                return True, None
+            else:
+                pr.remove_from_labels("automerge")
+                pr.create_issue_comment("""\
+Hi! This is the friendly conda-forge automerge bot!
+
+Commits were made to this PR after the `automerge` label was added. For \
+security reasons, I have disabled automerge by removing the `automerge` label. \
+Please add the `automerge` label again (or ask a maintainer to do so) if you'd \
+like to enable automerge again!
+""")
+                return False, "commits were made after the automerge label was added"
 
     # only allowed users
     if pr.user.login not in ALLOWED_USERS:
