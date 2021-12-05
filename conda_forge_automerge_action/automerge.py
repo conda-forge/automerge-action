@@ -280,7 +280,7 @@ def _all_statuses_and_checks_ok(
     return all(v for v in final_states.values()), final_states
 
 
-def _comment_on_pr_with_race(pr, comment, check_slug, check_race):
+def _comment_on_pr_with_race(pr, comment, check_slug, check_race=2):
     # check for a PR comment with a given slug
     # turn check_race > 1 to check more than once
     last_comment = None
@@ -362,7 +362,6 @@ not being automatically merged. Please add the `automerge` label again (or ask a
 maintainer to do so) if you'd like to enable automerge again!
 """,
             "not all commits to this PR were made by the bot",
-            1,
         )
         return False, "non-bot commits on a bot PR with the automerge slug"
 
@@ -373,7 +372,7 @@ maintainer to do so) if you'd like to enable automerge again!
     return True, None
 
 
-def _comment_on_pr(pr, stats, msg, check_race=1):
+def _comment_on_pr(pr, stats, msg):
     # do not comment if pending
     if any(v is None for v in stats.values()):
         return
@@ -405,7 +404,7 @@ I considered the following status checks when analyzing this PR:
     # I also thought about using timestamps, but github check events don't come
     # with one.
     check_slug = "I considered the following status checks when analyzing this PR:"
-    _comment_on_pr_with_race(pr, comment, check_slug, check_race)
+    _comment_on_pr_with_race(pr, comment, check_slug)
 
 
 def _automerge_pr(repo, pr, session):
@@ -428,7 +427,7 @@ def _automerge_pr(repo, pr, session):
         status_states, check_states, req_checks_and_states
     )
     if not ok:
-        _comment_on_pr(pr, final_statuses, "not passing and not merged.", check_race=2)
+        _comment_on_pr(pr, final_statuses, "not passing and not merged.")
         return False, "PR has failing or pending statuses/checks"
 
     # make sure PR is mergeable and not already merged
@@ -446,7 +445,6 @@ def _automerge_pr(repo, pr, session):
             "mergeable_state=%s)." % (
                 pr.mergeable, pr.mergeable_state
             ),
-            check_race=2,
         )
         return False, "PR merge issue: mergeable|mergeable_state = %s|%s" % (
             pr.mergeable, pr.mergeable_state)
@@ -462,7 +460,6 @@ def _automerge_pr(repo, pr, session):
             pr,
             final_statuses,
             "passing, but could not be merged (error=%s)." % merge_status.message,
-            check_race=2,
         )
         return (
             False,
@@ -470,7 +467,7 @@ def _automerge_pr(repo, pr, session):
     else:
         # use a smaller check_race here to make sure this one is prompt
         _comment_on_pr(
-            pr, final_statuses, "passing and merged! Have a great day!", check_race=2)
+            pr, final_statuses, "passing and merged! Have a great day!")
         return True, "all is well :)"
 
 
