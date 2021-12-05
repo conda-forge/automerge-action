@@ -69,7 +69,7 @@ Docker image.
 
 ## Testing
 
-The code has a test suite. However, to test it live, you can do one of two things.
+The code has a test suite. However, to test it live, you can do one of three things.
 
 1. Bump the version of [this package](https://github.com/regro/cf-autotick-bot-test-package)
    by making a GitHub release. Then, after roughly an hour or so,
@@ -80,3 +80,6 @@ The code has a test suite. However, to test it live, you can do one of two thing
 2. You can push an image to the `dev` tag of the Docker repo. Then, point the action in
    the `.github/workflows/automerge.yaml` of your testing repo to the `dev` branch of
    this repo by changing `conda-forge/automerge-action@main` to `conda-forge/automerge-action@dev`.
+
+3. You can use the scripts in the `.scripts` directory to test the action live in a several cases.
+   See the `README.md` in that directory for more information.
