@@ -280,6 +280,24 @@ def _all_statuses_and_checks_ok(
     return all(v for v in final_states.values()), final_states
 
 
+def _comment_on_pr_with_race(pr, comment, check_slug, check_race):
+    # check for a PR comment with a given slug
+    # turn check_race > 1 to check more than once
+    last_comment = None
+    i = 0
+    while last_comment is None and i < check_race:
+        for cmnt in pr.get_issue_comments():
+            if check_slug in cmnt.body:
+                last_comment = cmnt
+        time.sleep(random.uniform(0.5, 1.5))
+        i += 1
+
+    if last_comment is None:
+        pr.create_issue_comment(comment)
+    else:
+        last_comment.edit(comment)
+
+
 def _no_extra_pr_commits(pr):
     """check that no commits were made after a PR has the automerge label added"""
     events = [e for e in pr.as_issue().get_timeline()]
@@ -331,6 +349,23 @@ like to enable automerge again!
     if '[bot-automerge]' not in pr.title:
         return False, "PR does not have the '[bot-automerge]' slug in the title"
 
+    # only if only ALLOWED_USERS have commits
+    committers = {getattr(c.author, "login", None) for c in pr.get_commits()}
+    if not all(c in ALLOWED_USERS for c in committers):
+        _comment_on_pr_with_race(
+            pr,
+            """\
+Hi! This is the friendly conda-forge automerge bot!
+
+It appears that not all commits to this PR were made by the bot. Thus this PR is \
+not being automatically merged. Please add the `automerge` label again (or ask a \
+maintainer to do so) if you'd like to enable automerge again!
+""",
+            "not all commits to this PR were made by the bot",
+            1,
+        )
+        return False, "non-bot commits on a bot PR with the automerge slug"
+
     # can we automerge in this feedstock?
     if not _automerge_me(cfg):
         return False, "automated bot merges are turned off for this feedstock"
@@ -369,19 +404,8 @@ I considered the following status checks when analyzing this PR:
     # fail.
     # I also thought about using timestamps, but github check events don't come
     # with one.
-    last_comment = None
-    i = 0
-    while last_comment is None and i < check_race:
-        for cmnt in pr.get_issue_comments():
-            if "Hi! This is the friendly conda-forge automerge bot!" in cmnt.body:
-                last_comment = cmnt
-        time.sleep(random.uniform(0.5, 1.5))
-        i += 1
-
-    if last_comment is None:
-        pr.create_issue_comment(comment)
-    else:
-        last_comment.edit(comment)
+    check_slug = "I considered the following status checks when analyzing this PR:"
+    _comment_on_pr_with_race(pr, comment, check_slug, check_race)
 
 
 def _automerge_pr(repo, pr, session):
