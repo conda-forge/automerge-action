@@ -17,6 +17,6 @@
    ```
 
 5. Run the script `run_tests.sh` feeding it the version number of the test as `vXYZ`
-   and your username (e.g., `./run_tests.sh v8 beckermr`).
+   and your username (e.g., `./run_tests.sh v8`).
 
 6. The script will make a series of PRs. Some should merge and some should not.

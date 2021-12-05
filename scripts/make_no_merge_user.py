@@ -55,7 +55,6 @@ BUILD_SLUG = "{% set build = " + str(int(sys.argv[3][1:]) + 14) + " %}\n"
 CI_SLUG = '{% set cislug = "' + sys.argv[1] + sys.argv[2] + '" %}\n'
 
 TST = sys.argv[3]
-USER = sys.argv[4]
 
 uid = "h" + uuid.uuid4().hex[0:6]
 BASE_BRANCH = "%s-%s-%s-no-automerge-user" % (uid, sys.argv[1], sys.argv[2])
@@ -156,6 +155,7 @@ print("\n\n=========================================")
 print("making the PR")
 
 gh = github.Github(os.environ["GITHUB_TOKEN"])
+USER = gh.get_user().login
 repo = gh.get_repo("conda-forge/cf-autotick-bot-test-package-feedstock")
 pr = repo.create_pull(
     title="[SHOULD NOT BE MERGED] TST test automerge " + BRANCH,
