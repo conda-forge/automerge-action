@@ -281,16 +281,8 @@ def _all_statuses_and_checks_ok(
 
 
 def _comment_on_pr_with_race(pr, comment, check_slug, check_race):
-    # the times at which PR statuses return are correlated and so this code
-    # can race when posting failures
-    # thus we can turn up check_race to say 10
-    # in that case to try and randomize to avoid double posting comments
-    # I considered using app slugs (e.g. require the failed check to be triggered
-    # by the same app as a failed one in the final statuses). However, some apps
-    # post more than one message (e.g., circle) so that would not work if they both
-    # fail.
-    # I also thought about using timestamps, but github check events don't come
-    # with one.
+    # check for a PR comment with a given slug
+    # turn check_race > 1 to check more than once
     last_comment = None
     i = 0
     while last_comment is None and i < check_race:
@@ -402,6 +394,16 @@ I considered the following status checks when analyzing this PR:
 
     comment = comment + "\n\nThus the PR was %s" % msg
 
+    # the times at which PR statuses return are correlated and so this code
+    # can race when posting failures
+    # thus we can turn up check_race to say 10
+    # in that case to try and randomize to avoid double posting comments
+    # I considered using app slugs (e.g. require the failed check to be triggered
+    # by the same app as a failed one in the final statuses). However, some apps
+    # post more than one message (e.g., circle) so that would not work if they both
+    # fail.
+    # I also thought about using timestamps, but github check events don't come
+    # with one.
     check_slug = "I considered the following status checks when analyzing this PR:"
     _comment_on_pr_with_race(pr, comment, check_slug, check_race)
 
