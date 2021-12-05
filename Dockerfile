@@ -8,8 +8,6 @@ LABEL maintainer="conda-forge core (@conda-forge/core)"
 
 ENV LANG en_US.UTF-8
 
-ARG CONDA_VERSION="4.7.12.1"
-ARG CONDA_MD5="81c773ff87af5cfac79ab862942ab6b3"
 ARG CONDA_DIR="/opt/conda"
 
 ENV PATH="$CONDA_DIR/bin:$PATH"
@@ -22,12 +20,11 @@ ADD http://worldclockapi.com/api/json/utc/now /opt/docker/etc/timestamp
 RUN echo "**** install dev packages ****" && \
     apk add --no-cache bash ca-certificates wget && \
     \
-    echo "**** get Miniconda ****" && \
+    echo "**** get Mambaforge ****" && \
     mkdir -p "$CONDA_DIR" && \
-    wget "http://repo.continuum.io/miniconda/Miniconda3-${CONDA_VERSION}-Linux-x86_64.sh" -O miniconda.sh && \
-    echo "$CONDA_MD5  miniconda.sh" | md5sum -c && \
+    wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh" -O miniconda.sh && \
     \
-    echo "**** install Miniconda ****" && \
+    echo "**** install Mambaforge ****" && \
     bash miniconda.sh -f -b -p "$CONDA_DIR" && \
     \
     echo "**** install base env ****" && \
@@ -37,8 +34,8 @@ RUN echo "**** install dev packages ****" && \
     conda config --add channels conda-forge  && \
     conda config --show-sources  && \
     conda config --set always_yes yes && \
-    conda update --all && \
-    conda install --quiet \
+    mamba update --all && \
+    mamba install --quiet \
         git \
         python=3.8 \
         pip \
