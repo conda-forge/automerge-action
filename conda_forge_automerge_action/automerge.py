@@ -8,7 +8,6 @@ import time
 import random
 
 from ruamel.yaml import YAML
-import tenacity
 
 LOGGER = logging.getLogger(__name__)
 
@@ -73,32 +72,19 @@ def _automerge_me(cfg):
     return cfg.get('bot', {}).get('automerge', False)
 
 
-@tenacity.retry(
-    stop=tenacity.stop_after_attempt(10),
-    wait=tenacity.wait_random_exponential(multiplier=0.1))
-def _get_checks(repo, pr, session):
-    if False:
-        return (
-            session
-            .get(
-                "https://api.github.com/repos/%s/commits/%s/check-suites" % (
-                    repo.full_name, pr.head.sha)
-            )
-            .json()['check_suites']
-        )
-    else:
-        checks = []
-        commit = repo.get_commit(pr.head.sha)
-        for check in commit.get_check_suites():
-            _check = {}
-            _check["app"] = {"slug": check.app.slug}
-            _check["status"] = check.status
-            _check["conclusion"] = check.conclusion
-            checks.append(_check)
-        return checks
+def _get_checks(repo, pr):
+    checks = []
+    commit = repo.get_commit(pr.head.sha)
+    for check in commit.get_check_suites():
+        _check = {}
+        _check["app"] = {"slug": check.app.slug}
+        _check["status"] = check.status
+        _check["conclusion"] = check.conclusion
+        checks.append(_check)
+    return checks
 
 
-def _get_github_checks(repo, pr, session):
+def _get_github_checks(repo, pr):
     """Get all of the github checks associated with a PR.
 
     Parameters
@@ -107,10 +93,6 @@ def _get_github_checks(repo, pr, session):
         A `Repository` object for the given repo from the PyGithub package.
     pr : github.PullRequest.PullRequest
         A `PullRequest` object for the given PR from the PuGithhub package.
-    session : requests.Session
-        A `requests` session w/ the correct headers for the GitHub API v3.
-        See `conda_forge_automerge_action.api_sessions.create_api_sessions` for
-        details.
 
     Returns
     -------
@@ -119,7 +101,7 @@ def _get_github_checks(repo, pr, session):
     """
 
     check_states = {}
-    checks = _get_checks(repo, pr, session)
+    checks = _get_checks(repo, pr)
     for check in checks:
         name = check['app']['slug']
         if name not in IGNORED_CHECKS:
@@ -417,7 +399,7 @@ I considered the following status checks when analyzing this PR:
     _comment_on_pr_with_race(pr, comment, check_slug)
 
 
-def _automerge_pr(repo, pr, session):
+def _automerge_pr(repo, pr):
     cfg = _get_conda_forge_config(pr)
     allowed, msg = _check_pr(pr, cfg)
 
@@ -426,7 +408,7 @@ def _automerge_pr(repo, pr, session):
 
     # get checks and statuses
     status_states = _get_github_statuses(repo, pr)
-    check_states = _get_github_checks(repo, pr, session)
+    check_states = _get_github_checks(repo, pr)
 
     # get which ones are required
     req_checks_and_states = _get_required_checks_and_statuses(pr, cfg)
@@ -492,7 +474,7 @@ def _automerge_pr(repo, pr, session):
         return True, "all is well :)"
 
 
-def automerge_pr(repo, pr, session):
+def automerge_pr(repo, pr):
     """Possibly automerge a PR.
 
     Parameters
@@ -501,10 +483,6 @@ def automerge_pr(repo, pr, session):
         A `Repository` object for the given repo from the PyGithub package.
     pr : github.PullRequest.PullRequest
         A `PullRequest` object for the given PR from the PuGithhub package.
-    session : requests.Session
-        A `requests` session w/ the correct headers for the GitHub API v3.
-        See `conda_forge_automerge_action.api_sessions.create_api_sessions` for
-        details.
 
     Returns
     -------
@@ -513,7 +491,7 @@ def automerge_pr(repo, pr, session):
     reason : str
         The reason the merge worked or did not work.
     """
-    did_merge, reason = _automerge_pr(repo, pr, session)
+    did_merge, reason = _automerge_pr(repo, pr)
 
     if did_merge:
         LOGGER.info(
