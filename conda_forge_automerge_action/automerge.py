@@ -463,20 +463,31 @@ def _automerge_pr(repo, pr, session):
             pr.mergeable, pr.mergeable_state)
 
     # we're good - now merge
-    merge_status = pr.merge(
-        commit_message="automerged PR by conda-forge/automerge-action",
-        commit_title=pr.title,
-        merge_method='merge',
-        sha=pr.head.sha)
-    if not merge_status.merged:
+    try:
+        merge_status = pr.merge(
+            commit_message="automerged PR by conda-forge/automerge-action",
+            commit_title=pr.title,
+            merge_method='merge',
+            sha=pr.head.sha
+        )
+        merge_status_merged = merge_status.merged
+        if not merge_status_merged:
+            merge_status_message = merge_status.message
+        else:
+            merge_status_message = None
+    except Exception:
+        merge_status_merged = False
+        merge_status_message = "API error in POST to merge"
+
+    if not merge_status_merged:
         _comment_on_pr(
             pr,
             final_statuses,
-            "passing, but could not be merged (error=%s)." % merge_status.message,
+            "passing, but could not be merged (error=%s)." % merge_status_message,
         )
         return (
             False,
-            "PR could not be merged: message %s" % merge_status.message)
+            "PR could not be merged: message %s" % merge_status_message)
     else:
         # use a smaller check_race here to make sure this one is prompt
         _comment_on_pr(
