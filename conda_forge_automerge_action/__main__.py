@@ -3,7 +3,7 @@ import json
 import logging
 import pprint
 
-from .api_sessions import create_api_sessions
+from .api_sessions import create_api_sessions, get_actor_token
 from .automerge import automerge_pr
 
 LOGGER = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ def main():
 
     LOGGER.info('making API clients')
 
-    sess, gh = create_api_sessions(os.environ["INPUT_GITHUB_TOKEN"])
+    sess, gh = create_api_sessions(get_actor_token()[1])
 
     with open(os.environ["GITHUB_EVENT_PATH"], 'r') as fp:
         event_data = json.load(fp)

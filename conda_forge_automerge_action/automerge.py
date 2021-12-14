@@ -107,19 +107,32 @@ def _get_github_checks(repo, pr, session):
         A dictionary mapping each check to its state.
     """
 
-    checks = _get_checks(repo, pr, session)
-
     check_states = {}
-    for check in checks:
-        name = check['app']['slug']
-        if name not in IGNORED_CHECKS:
-            if check['status'] != 'completed':
-                check_states[name] = None
-            else:
-                if check['conclusion'] == "success":
-                    check_states[name] = True
+    if False:
+        checks = _get_checks(repo, pr, session)
+
+        for check in checks:
+            name = check['app']['slug']
+            if name not in IGNORED_CHECKS:
+                if check['status'] != 'completed':
+                    check_states[name] = None
                 else:
-                    check_states[name] = False
+                    if check['conclusion'] == "success":
+                        check_states[name] = True
+                    else:
+                        check_states[name] = False
+    else:
+        commit = repo.get_commit(pr.head.sha)
+        for check in commit.get_check_suites():
+            name = check.app.slug
+            if name not in IGNORED_CHECKS:
+                if check.status != 'completed':
+                    check_states[name] = None
+                else:
+                    if check.conclusion == "success":
+                        check_states[name] = True
+                    else:
+                        check_states[name] = False
 
     for name, good in check_states.items():
         LOGGER.info('check: name|state = %s|%s', name, good)
