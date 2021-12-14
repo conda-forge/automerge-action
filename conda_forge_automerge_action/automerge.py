@@ -77,14 +77,25 @@ def _automerge_me(cfg):
     stop=tenacity.stop_after_attempt(10),
     wait=tenacity.wait_random_exponential(multiplier=0.1))
 def _get_checks(repo, pr, session):
-    return (
-        session
-        .get(
-            "https://api.github.com/repos/%s/commits/%s/check-suites" % (
-                repo.full_name, pr.head.sha)
+    if False:
+        return (
+            session
+            .get(
+                "https://api.github.com/repos/%s/commits/%s/check-suites" % (
+                    repo.full_name, pr.head.sha)
+            )
+            .json()['check_suites']
         )
-        .json()['check_suites']
-    )
+    else:
+        checks = []
+        commit = repo.get_commit(pr.head.sha)
+        for check in commit.get_check_suites():
+            _check = {}
+            _check["app"] = {"slug": check.app.slug}
+            _check["status"] = check.status
+            _check["conclusion"] = check.conclusion
+            checks.append(_check)
+        return checks
 
 
 def _get_github_checks(repo, pr, session):
@@ -108,31 +119,17 @@ def _get_github_checks(repo, pr, session):
     """
 
     check_states = {}
-    if False:
-        checks = _get_checks(repo, pr, session)
-
-        for check in checks:
-            name = check['app']['slug']
-            if name not in IGNORED_CHECKS:
-                if check['status'] != 'completed':
-                    check_states[name] = None
+    checks = _get_checks(repo, pr, session)
+    for check in checks:
+        name = check['app']['slug']
+        if name not in IGNORED_CHECKS:
+            if check['status'] != 'completed':
+                check_states[name] = None
+            else:
+                if check['conclusion'] == "success":
+                    check_states[name] = True
                 else:
-                    if check['conclusion'] == "success":
-                        check_states[name] = True
-                    else:
-                        check_states[name] = False
-    else:
-        commit = repo.get_commit(pr.head.sha)
-        for check in commit.get_check_suites():
-            name = check.app.slug
-            if name not in IGNORED_CHECKS:
-                if check.status != 'completed':
-                    check_states[name] = None
-                else:
-                    if check.conclusion == "success":
-                        check_states[name] = True
-                    else:
-                        check_states[name] = False
+                    check_states[name] = False
 
     for name, good in check_states.items():
         LOGGER.info('check: name|state = %s|%s', name, good)
