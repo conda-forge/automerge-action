@@ -5,8 +5,8 @@ from ..automerge import _get_github_checks
 @unittest.mock.patch("conda_forge_automerge_action.automerge._get_checks")
 def test_get_github_checks_nochecks(get_mock):
     get_mock.return_value = {}
-    stat = _get_github_checks(1, 2, 3)
-    get_mock.assert_called_once_with(1, 2, 3)
+    stat = _get_github_checks(1, 2)
+    get_mock.assert_called_once_with(1, 2)
     assert stat == {}
 
 
@@ -19,8 +19,8 @@ def test_get_github_checks_ignores_self(get_mock):
             'conclusion': 'blah',
         },
     ]
-    stat = _get_github_checks(1, 2, 3)
-    get_mock.assert_called_once_with(1, 2, 3)
+    stat = _get_github_checks(1, 2)
+    get_mock.assert_called_once_with(1, 2)
     assert stat == {}
 
 
@@ -38,8 +38,8 @@ def test_check_github_checks_all_pending(get_mock):
             'conclusion': 'blah',
         },
     ]
-    stat = _get_github_checks(1, 2, 3)
-    get_mock.assert_called_once_with(1, 2, 3)
+    stat = _get_github_checks(1, 2)
+    get_mock.assert_called_once_with(1, 2)
     assert stat == {"c1": None, "c2": None}
 
 
@@ -57,8 +57,8 @@ def test_check_github_checks_all_fail(get_mock):
             'conclusion': 'failure',
         },
     ]
-    stat = _get_github_checks(1, 2, 3)
-    get_mock.assert_called_once_with(1, 2, 3)
+    stat = _get_github_checks(1, 2)
+    get_mock.assert_called_once_with(1, 2)
     assert stat == {"c1": False, "c2": False}
 
 
@@ -76,8 +76,8 @@ def test_check_github_checks_all_success(get_mock):
             'conclusion': 'success',
         },
     ]
-    stat = _get_github_checks(1, 2, 3)
-    get_mock.assert_called_once_with(1, 2, 3)
+    stat = _get_github_checks(1, 2)
+    get_mock.assert_called_once_with(1, 2)
     assert stat == {"c1": True, "c2": True}
 
 
@@ -95,8 +95,8 @@ def test_check_github_checks_success_plus_pending(get_mock):
             'conclusion': 'success',
         },
     ]
-    stat = _get_github_checks(1, 2, 3)
-    get_mock.assert_called_once_with(1, 2, 3)
+    stat = _get_github_checks(1, 2)
+    get_mock.assert_called_once_with(1, 2)
     assert stat == {"c1": None, "c2": True}
 
 
@@ -119,8 +119,8 @@ def test_check_github_checks_success_plus_fail(get_mock):
             'conclusion': 'success',
         },
     ]
-    stat = _get_github_checks(1, 2, 3)
-    get_mock.assert_called_once_with(1, 2, 3)
+    stat = _get_github_checks(1, 2)
+    get_mock.assert_called_once_with(1, 2)
     assert stat == {"c1": False, "c2": False, "c3": True}
 
 
@@ -143,8 +143,8 @@ def test_check_github_checks_pending_plus_fail(get_mock):
             'conclusion': 'success',
         },
     ]
-    stat = _get_github_checks(1, 2, 3)
-    get_mock.assert_called_once_with(1, 2, 3)
+    stat = _get_github_checks(1, 2)
+    get_mock.assert_called_once_with(1, 2)
     assert stat == {"c1": False, "c2": False, "c3": None}
 
 
@@ -172,6 +172,6 @@ def test_check_github_checks_pending_plus_success_plus_fail(get_mock):
             'conclusion': 'success',
         },
     ]
-    stat = _get_github_checks(1, 2, 3)
-    get_mock.assert_called_once_with(1, 2, 3)
+    stat = _get_github_checks(1, 2)
+    get_mock.assert_called_once_with(1, 2)
     assert stat == {"c1": False, "c2": False, "c3": None, "c4": True}

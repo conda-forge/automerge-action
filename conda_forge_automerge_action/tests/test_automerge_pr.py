@@ -15,7 +15,7 @@ def test_automerge_pr_bad_user(get_cfg_mock):
     pr = MagicMock()
     pr.user.login = 'blah'
 
-    did_merge, reason = automerge_pr(repo, pr, None)
+    did_merge, reason = automerge_pr(repo, pr)
 
     assert not did_merge
     assert "user blah" in reason
@@ -32,7 +32,7 @@ def test_automerge_pr_no_title_slug(get_cfg_mock):
     pr.user.login = 'regro-cf-autotick-bot'
     pr.title = "blah"
 
-    did_merge, reason = automerge_pr(repo, pr, None)
+    did_merge, reason = automerge_pr(repo, pr)
 
     assert not did_merge
     assert "slug in the title" in reason
@@ -54,7 +54,7 @@ def test_automerge_pr_feedstock_off(get_cfg_mock, cfg):
     pr.user.login = 'regro-cf-autotick-bot'
     pr.title = "[bot-automerge] blah"
 
-    did_merge, reason = automerge_pr(repo, pr, None)
+    did_merge, reason = automerge_pr(repo, pr)
 
     assert not did_merge
     assert "off for this feedstock" in reason
@@ -87,12 +87,12 @@ def test_automerge_pr_feedstock_status_or_check_fail(
     pr.user.login = 'regro-cf-autotick-bot'
     pr.title = "[bot-automerge] blah"
 
-    did_merge, reason = automerge_pr(repo, pr, None)
+    did_merge, reason = automerge_pr(repo, pr)
 
     assert not did_merge
     assert "pending statuses" in reason
     get_cfg_mock.assert_called_once_with(pr)
-    check_mock.assert_called_once_with(repo, pr, None)
+    check_mock.assert_called_once_with(repo, pr)
     stat_mock.assert_called_once_with(repo, pr)
     req_mock.assert_called_once_with(pr, get_cfg_mock.return_value)
 
@@ -117,11 +117,11 @@ def test_automerge_pr_feedstock_no_statuses_or_checks(
     pr.user.login = 'regro-cf-autotick-bot'
     pr.title = "[bot-automerge] blah"
 
-    did_merge, reason = automerge_pr(repo, pr, None)
+    did_merge, reason = automerge_pr(repo, pr)
 
     assert not did_merge
     assert "At least one status or check must be required" in reason
     get_cfg_mock.assert_called_once_with(pr)
-    check_mock.assert_called_once_with(repo, pr, None)
+    check_mock.assert_called_once_with(repo, pr)
     stat_mock.assert_called_once_with(repo, pr)
     req_mock.assert_called_once_with(pr, get_cfg_mock.return_value)

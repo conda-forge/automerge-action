@@ -3,7 +3,7 @@ import json
 import logging
 import pprint
 
-from .api_sessions import create_api_sessions
+from .api_sessions import create_api_sessions, get_actor_token
 from .automerge import automerge_pr
 
 LOGGER = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ def main():
 
     LOGGER.info('making API clients')
 
-    sess, gh = create_api_sessions(os.environ["INPUT_GITHUB_TOKEN"])
+    gh = create_api_sessions(get_actor_token()[1])
 
     with open(os.environ["GITHUB_EVENT_PATH"], 'r') as fp:
         event_data = json.load(fp)
@@ -32,7 +32,7 @@ def main():
         repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
         for pr in repo.get_pulls():
             if pr.head.sha == sha:
-                automerge_pr(repo, pr, sess)
+                automerge_pr(repo, pr)
 
     elif event_name in ['pull_request', 'pull_request_review']:
         event_data = event_data['pull_request']
@@ -42,7 +42,7 @@ def main():
         repo = gh.get_repo(repo_name)
         pr = repo.get_pull(pr_num)
 
-        automerge_pr(repo, pr, sess)
+        automerge_pr(repo, pr)
     else:
         raise_error = True
 

@@ -26,6 +26,7 @@ jobs:
         uses: conda-forge/automerge-action@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          rerendering_github_token: ${{ secrets.RERENDERING_GITHUB_TOKEN }}
 ```
 
 ## Opt-out or Opt-in
