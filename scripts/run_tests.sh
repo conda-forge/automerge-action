@@ -6,6 +6,12 @@ export CONDA_SMITHY_LOGLEVEL=DEBUG
 
 pushd cf-autotick-bot-test-package-feedstock
 
+git reset --hard HEAD
+git checkout master
+git pull upstream master
+git pull
+git push
+
 python ../move_to_dev_branch.py
 
 python ../make_extra_commit.py azure azure $1
