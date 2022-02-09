@@ -92,7 +92,7 @@ def _get_github_checks(repo, pr):
     repo : github.Repository.Repository
         A `Repository` object for the given repo from the PyGithub package.
     pr : github.PullRequest.PullRequest
-        A `PullRequest` object for the given PR from the PuGithhub package.
+        A `PullRequest` object for the given PR from the PyGithub package.
 
     Returns
     -------
@@ -127,7 +127,7 @@ def _get_github_statuses(repo, pr):
     repo : github.Repository.Repository
         A `Repository` object for the given repo from the PyGithub package.
     pr : github.PullRequest.PullRequest
-        A `PullRequest` object for the given PR from the PuGithhub package.
+        A `PullRequest` object for the given PR from the PyGithub package.
 
     Returns
     -------
@@ -445,7 +445,7 @@ def _automerge_pr(repo, pr):
     try:
         merge_status = pr.merge(
             commit_message="automerged PR by conda-forge/automerge-action",
-            commit_title=pr.title,
+            commit_title=f"{pr.title} ({pr.id})",
             merge_method='merge',
             sha=pr.head.sha
         )
@@ -482,7 +482,7 @@ def automerge_pr(repo, pr):
     repo : github.Repository.Repository
         A `Repository` object for the given repo from the PyGithub package.
     pr : github.PullRequest.PullRequest
-        A `PullRequest` object for the given PR from the PuGithhub package.
+        A `PullRequest` object for the given PR from the PyGithub package.
 
     Returns
     -------
