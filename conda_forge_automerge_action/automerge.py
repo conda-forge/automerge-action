@@ -445,7 +445,7 @@ def _automerge_pr(repo, pr):
     try:
         merge_status = pr.merge(
             commit_message="automerged PR by conda-forge/automerge-action",
-            commit_title=f"{pr.title} (#{pr.id})",
+            commit_title=f"{pr.title} (#{pr.number})",
             merge_method='merge',
             sha=pr.head.sha
         )
