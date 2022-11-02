@@ -7,8 +7,8 @@ export CONDA_SMITHY_LOGLEVEL=DEBUG
 pushd cf-autotick-bot-test-package-feedstock
 
 git reset --hard HEAD
-git checkout master
-git pull upstream master
+git checkout main
+git pull upstream main
 git pull
 git push
 
