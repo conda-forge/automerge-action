@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import logging
 import datetime
@@ -8,6 +10,12 @@ import time
 import random
 
 from ruamel.yaml import YAML
+
+from typing import TYPE_CHECKING, Tuple
+
+if TYPE_CHECKING:
+    from github.Repository import Repository
+    from github.PullRequest import PullRequest
 
 LOGGER = logging.getLogger(__name__)
 
@@ -312,7 +320,7 @@ def _no_extra_pr_commits(pr):
     return all(e.event != "committed" for e in events[label_ind+1:])
 
 
-def _check_pr(pr, cfg):
+def _check_pr(pr: PullRequest, cfg):
     """make sure a PR is ok to automerge"""
     if any(label.name == "automerge" for label in pr.get_labels()):
         _no_commits = _no_extra_pr_commits(pr)
@@ -399,7 +407,7 @@ I considered the following status checks when analyzing this PR:
     _comment_on_pr_with_race(pr, comment, check_slug)
 
 
-def _automerge_pr(repo, pr):
+def _automerge_pr(repo: Repository, pr: PullRequest) -> Tuple[bool, str]:
     cfg = _get_conda_forge_config(pr)
     allowed, msg = _check_pr(pr, cfg)
 
@@ -474,7 +482,7 @@ def _automerge_pr(repo, pr):
         return True, "all is well :)"
 
 
-def automerge_pr(repo, pr):
+def automerge_pr(repo: Repository, pr: PullRequest) -> Tuple[bool, str]:
     """Possibly automerge a PR.
 
     Parameters
