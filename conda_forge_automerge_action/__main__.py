@@ -28,6 +28,8 @@ def main():
             sha = event_data['sha']
         elif event_name == 'check_suite':
             sha = event_data['check_suite']['head_sha']
+        else:
+            raise NotImplementedError(f"Should never happen. {event_name=}")
 
         repo = gh.get_repo(os.environ['GITHUB_REPOSITORY'])
         for pr in repo.get_pulls():
