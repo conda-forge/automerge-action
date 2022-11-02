@@ -66,7 +66,7 @@ print("making the base branch")
 try:
     subprocess.run(
         "pushd ../cf-test-master && "
-        "git checkout master && "
+        "git checkout main && "
         "git reset --hard HEAD && "
         "git checkout -b %s && "
         "git push --set-upstream origin %s && "
