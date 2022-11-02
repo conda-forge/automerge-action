@@ -65,21 +65,19 @@ print("\n\n=========================================")
 print("making the base branch")
 try:
     subprocess.run(
-        "pushd ../cf-test-master && "
-        "git checkout main && "
-        "git reset --hard HEAD && "
-        "git checkout -b %s && "
-        "git push --set-upstream origin %s && "
-        "popd" % (BASE_BRANCH, BASE_BRANCH),
+        f"cd ../cf-test-master && "
+        f"git checkout main && "
+        f"git reset --hard HEAD && "
+        f"git checkout -b {BASE_BRANCH} && "
+        f"git push --set-upstream origin {BASE_BRANCH}",
         shell=True,
         check=True,
     )
 except Exception:
     subprocess.run(
-        "pushd ../cf-test-master && "
-        "git checkout %s && "
-        "git push --set-upstream origin %s && "
-        "popd" % (BASE_BRANCH, BASE_BRANCH),
+        f"cd ../cf-test-master && "
+        f"git checkout {BASE_BRANCH} && "
+        f"git push --set-upstream origin {BASE_BRANCH}",
         shell=True,
     )
 
