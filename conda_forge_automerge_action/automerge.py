@@ -369,6 +369,13 @@ maintainer to do so) if you'd like to enable automerge again!
     if not _automerge_me(cfg):
         return False, "automated bot merges are turned off for this feedstock"
 
+    # Ensure files under .github/workflows have not been modified
+    if any(
+        f.filename.startswith(".github/workflows")
+        for f in pr.get_files()
+    ):
+        return False, "Workflow files have been modified. Please merge manually."
+
     return True, None
 
 
