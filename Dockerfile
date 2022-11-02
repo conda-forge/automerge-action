@@ -16,6 +16,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # make sure the install below is not cached by docker
 ADD http://worldclockapi.com/api/json/utc/now /opt/docker/etc/timestamp
 
+COPY environment.yml /tmp/environment.yml
+
 # Install conda
 RUN echo "**** install dev packages ****" && \
     apk add --no-cache bash ca-certificates wget && \
@@ -35,16 +37,7 @@ RUN echo "**** install dev packages ****" && \
     conda config --show-sources  && \
     conda config --set always_yes yes && \
     mamba update --all && \
-    mamba install --quiet \
-        git \
-        python=3.8 \
-        pip \
-        tini \
-        pygithub \
-        tenacity \
-        requests \
-        ruamel.yaml && \
-    \
+    mamba env update --quiet -f /tmp/environment.yml \
     echo "**** cleanup ****" && \
     rm -rf /var/cache/apk/* && \
     rm -f miniconda.sh && \
