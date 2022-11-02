@@ -3,9 +3,11 @@ import os
 import sys
 import github
 import subprocess
-import yaml
+from ruamel.yaml import YAML
 import uuid
 
+
+yaml = YAML()
 
 META = """\
 {% set name = "cf-autotick-bot-test-package" %}
@@ -119,7 +121,7 @@ with open("recipe/meta.yaml", "w") as fp:
     fp.write(META)
 
 with open("conda-forge.yml", "r") as fp:
-    cfg = yaml.safe_load(fp)
+    cfg = yaml.load(fp)
 
 cfg["provider"]["linux"] = sys.argv[1]
 cfg["provider"]["osx"] = sys.argv[2]
