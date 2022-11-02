@@ -463,6 +463,7 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> Tuple[bool, str]:
         else:
             merge_status_message = None
     except Exception:
+        LOGGER.exception("API error in POST to merge")
         merge_status_merged = False
         merge_status_message = "API error in POST to merge"
 
