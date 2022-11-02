@@ -30,7 +30,7 @@ subprocess.run(
     "git checkout main && "
     "git pull && "
     "git add .github/workflows/automerge.yml && "
-    "git ci --allow-empty -m '[ci skip] automerge to dev' && "
+    "git commit --allow-empty -m '[ci skip] automerge to dev' && "
     "git push",
     shell=True,
     check=True,
