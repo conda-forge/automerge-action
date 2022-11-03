@@ -37,7 +37,7 @@ RUN echo "**** install dev packages ****" && \
     conda config --show-sources  && \
     conda config --set always_yes yes && \
     mamba update --all && \
-    mamba env update --quiet -f /tmp/environment.yml \
+    mamba env update --quiet -f /tmp/environment.yml && \
     echo "**** cleanup ****" && \
     rm -rf /var/cache/apk/* && \
     rm -f miniconda.sh && \
