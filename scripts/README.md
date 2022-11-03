@@ -8,17 +8,21 @@
 
 4. Clone the upstream repo (`https://github.com/conda-forge/cf-autotick-bot-test-package-feedstock`) to `cf-test-master`:
 
+  ```bash
   git clone https://github.com/conda-forge/cf-autotick-bot-test-package-feedstock.git cf-test-master
+  ```
 
 5. Add the upstream remote
 
-   ```
+   ```bash
    cd cf-autotick-bot-test-package-feedstock
    git remote add upstream https://github.com/conda-forge/cf-autotick-bot-test-package-feedstock.git
    cd ..
    ```
 
-6. Run the script `run_tests.sh` feeding it the version number of the test as `vXYZ`
+6. Ensure that `conda-smithy` is installed in your active Conda environment.
+
+7. Run the script `run_tests.sh` feeding it the version number of the test as `vXYZ`
    (e.g., `./run_tests.sh v8`).
 
-7. The script will make a series of PRs. Some should merge and some should not.
+8. The script will make a series of PRs. Some should merge and some should not.
