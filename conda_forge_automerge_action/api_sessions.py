@@ -31,7 +31,7 @@ def get_actor_token():
         return "x-access-token", os.environ["INPUT_GITHUB_TOKEN"], False
 
 
-def create_api_sessions(github_token):
+def create_api_sessions(github_token: str) -> Github:
     """Create API sessions for GitHub.
 
     Parameters
