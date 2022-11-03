@@ -51,4 +51,4 @@ jobs:
       - name: build the docker image
         shell: bash -l {0}
         run: |
-          docker build -t test .
+          docker build --no-cache -t test .
