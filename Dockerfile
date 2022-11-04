@@ -1,7 +1,26 @@
-FROM frolvlad/alpine-glibc:alpine-3.10
+FROM mambaorg/micromamba:git-0f27156 AS build-env
 
-# much of image code ripped from
-# https://github.com/Docker-Hub-frolvlad/docker-alpine-miniconda3
+ENV PYTHONDONTWRITEBYTECODE=1
+USER root
+
+# make sure the install below is not cached by docker
+ADD https://loripsum.net/api /opt/docker/etc/gibberish-to-bust-docker-image-cache
+
+COPY environment.yml /tmp/environment.yml
+
+RUN echo "**** install base env ****" && \
+    micromamba install --yes --quiet --name base --file /tmp/environment.yml
+RUN echo "**** cleanup ****" && \
+    micromamba clean --all --force-pkgs-dirs --yes && \
+    find "${MAMBA_ROOT_PREFIX}" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete
+RUN echo "**** finalize ****" && \
+    mkdir -p "${MAMBA_ROOT_PREFIX}/locks" && \
+    chmod 777 "${MAMBA_ROOT_PREFIX}/locks"
+
+FROM frolvlad/alpine-glibc:alpine-3.16_glibc-2.34
+
+COPY --from=build-env /opt/conda /opt/conda
+
 COPY BASE_IMAGE_LICENSE /
 
 LABEL maintainer="conda-forge core (@conda-forge/core)"
@@ -13,55 +32,10 @@ ARG CONDA_DIR="/opt/conda"
 ENV PATH="$CONDA_DIR/bin:$PATH"
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# make sure the install below is not cached by docker
-ADD https://loripsum.net/api /opt/docker/etc/gibberish-to-bust-docker-image-cache
-
-# Install conda
-RUN echo "**** install dev packages ****" && \
-    apk add --no-cache bash ca-certificates wget && \
-    \
-    echo "**** get Mambaforge ****" && \
-    mkdir -p "$CONDA_DIR" && \
-    wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh" -O miniconda.sh && \
-    \
-    echo "**** install Mambaforge ****" && \
-    bash miniconda.sh -f -b -p "$CONDA_DIR" && \
-    \
-    echo "**** install base env ****" && \
-    source /opt/conda/etc/profile.d/conda.sh && \
-    conda activate base && \
-    conda config --set show_channel_urls True  && \
-    conda config --add channels conda-forge  && \
-    conda config --show-sources  && \
-    conda config --set always_yes yes && \
-    mamba update --all && \
-    mamba install --quiet \
-        git \
-        python=3.8 \
-        pip \
-        tini \
-        pygithub \
-        tenacity \
-        requests \
-        ruamel.yaml && \
-    \
-    echo "**** cleanup ****" && \
-    rm -rf /var/cache/apk/* && \
-    rm -f miniconda.sh && \
-    conda clean --all --force-pkgs-dirs --yes && \
-    find "$CONDA_DIR" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete && \
-    \
-    echo "**** finalize ****" && \
-    mkdir -p "$CONDA_DIR/locks" && \
-    chmod 777 "$CONDA_DIR/locks"
-
-COPY entrypoint /opt/docker/bin/entrypoint
 RUN mkdir -p cf-autotick-bot-action
 COPY / cf-autotick-bot-action/
 RUN cd cf-autotick-bot-action && \
-    source /opt/conda/etc/profile.d/conda.sh && \
-    conda activate base && \
     pip install -e .
 
+COPY entrypoint /opt/docker/bin/entrypoint
 ENTRYPOINT ["/opt/conda/bin/tini", "--", "/opt/docker/bin/entrypoint"]
-CMD ["/bin/bash"]
