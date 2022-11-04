@@ -21,7 +21,7 @@ jobs:
           show-channel-urls: true
           miniforge-version: latest
           miniforge-variant: Mambaforge
-          environment-file: environment.yaml
+          environment-file: environment.yml
 
       - name: configure conda and install code
         shell: bash -l {0}
