@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 echo " "
 echo "==================================================================================================="
@@ -6,15 +6,5 @@ echo "==========================================================================
 
 git config --global user.name "conda-forge-webservices[bot]"
 git config --global user.email "91080706+conda-forge-webservices[bot]@users.noreply.github.com"
-
-source /opt/conda/etc/profile.d/conda.sh
-
-conda activate base
-
-conda info
-
-echo " "
-echo "==================================================================================================="
-echo "==================================================================================================="
 
 run-automerge-action
