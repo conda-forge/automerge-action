@@ -10,3 +10,5 @@ dependencies:
 - tenacity
 - requests
 - ruamel.yaml
+platforms:
+- linux-64

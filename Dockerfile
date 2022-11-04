@@ -3,10 +3,10 @@ FROM mambaorg/micromamba:git-0f27156 AS build-env
 ENV PYTHONDONTWRITEBYTECODE=1
 USER root
 
-COPY environment.yml /tmp/environment.yml
+COPY conda-lock.yml /tmp/conda-lock.yml
 
 RUN echo "**** install base env ****" && \
-    micromamba install --yes --quiet --name base --file /tmp/environment.yml
+    micromamba install --yes --quiet --name base --file /tmp/conda-lock.yml
 RUN echo "**** cleanup ****" && \
     micromamba clean --all --force-pkgs-dirs --yes && \
     find "${MAMBA_ROOT_PREFIX}" -follow -type f \( -iname '*.a' -o -iname '*.pyc' -o -iname '*.js.map' \) -delete
