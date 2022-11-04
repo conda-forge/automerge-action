@@ -11,7 +11,7 @@ import random
 
 from ruamel.yaml import YAML
 
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from github.Repository import Repository
@@ -418,7 +418,7 @@ I considered the following status checks when analyzing this PR:
     _comment_on_pr_with_race(pr, comment, check_slug)
 
 
-def _automerge_pr(repo: Repository, pr: PullRequest) -> Tuple[bool, str]:
+def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
     cfg = _get_conda_forge_config(pr)
     allowed, msg = _check_pr(pr, cfg)
 
@@ -496,7 +496,7 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> Tuple[bool, str]:
         return True, "all is well :)"
 
 
-def automerge_pr(repo: Repository, pr: PullRequest) -> Tuple[bool, str]:
+def automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
     """Possibly automerge a PR.
 
     Parameters
