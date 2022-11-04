@@ -374,7 +374,11 @@ maintainer to do so) if you'd like to enable automerge again!
         f.filename.startswith(".github/workflows")
         for f in pr.get_files()
     ):
-        return False, "GitHub Actions workflow files have been modified, and thus automerge cannot proceed due to API permission limitations. Please merge manually."
+        return False, (
+            "GitHub Actions workflow files have been modified, and thus automerge "
+            "cannot proceed due to API permission limitations. Please merge "
+            "manually."
+        )
 
     return True, None
 
