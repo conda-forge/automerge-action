@@ -27,17 +27,8 @@ jobs:
         run: |
           conda info -a
 
-          mamba install \
-            git \
-            python=3.11 \
-            pip \
-            tini \
-            pygithub \
-            tenacity \
-            requests \
-            ruamel.yaml \
-            flake8 \
-            pytest
+          mamba env update --file environment.yml
+          mamba install pytest
 
           pip install --no-deps -e .
 
