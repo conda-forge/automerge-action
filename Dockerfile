@@ -14,7 +14,7 @@ ENV PATH="$CONDA_DIR/bin:$PATH"
 ENV PYTHONDONTWRITEBYTECODE=1
 
 # make sure the install below is not cached by docker
-ADD http://worldclockapi.com/api/json/utc/now /opt/docker/etc/timestamp
+ADD https://loripsum.net/api /opt/docker/etc/gibberish-to-bust-docker-image-cache
 
 # Install conda
 RUN echo "**** install dev packages ****" && \

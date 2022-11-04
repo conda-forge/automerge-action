@@ -18,13 +18,7 @@ python ../make_extra_commit.py azure azure $1
 
 python ../make_no_merge_user.py azure azure $1
 
-for linux in travis azure circle; do
-  python ../make_ci_fail.py circle ${linux} $1
-  for osx in azure; do
-    python ../make_prs.py ${linux} ${osx} $1
-  done
-done
-
-python ../make_prs.py circle circle $1
+python ../make_ci_fail.py azure azure $1
+python ../make_prs.py azure azure $1
 
 popd
