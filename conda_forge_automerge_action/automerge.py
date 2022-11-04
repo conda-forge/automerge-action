@@ -1,37 +1,42 @@
 from __future__ import annotations
 
-import os
-import logging
+import contextlib
 import datetime
+import logging
+import os
+import random
 import subprocess
 import tempfile
-import contextlib
 import time
-import random
+from typing import TYPE_CHECKING
 
 from ruamel.yaml import YAML
 
-from typing import TYPE_CHECKING, Tuple
-
 if TYPE_CHECKING:
-    from github.Repository import Repository
     from github.PullRequest import PullRequest
+    from github.Repository import Repository
 
 LOGGER = logging.getLogger(__name__)
 
-ALLOWED_USERS = ['regro-cf-autotick-bot']
+ALLOWED_USERS = ["regro-cf-autotick-bot"]
 
 # action always ignores itself
 # github actions use the check_suite API
-IGNORED_CHECKS = ['github-actions']
+IGNORED_CHECKS = ["github-actions"]
 
 # sets of states that indicate good / bad / neutral in the github API
-NEUTRAL_STATES = ['pending']
+NEUTRAL_STATES = ["pending"]
 BAD_STATES = [
     # for statuses
-    'failure', 'error',
+    "failure",
+    "error",
     # for checks
-    'action_required', 'canceled', 'timed_out', 'failed', 'neutral']
+    "action_required",
+    "canceled",
+    "timed_out",
+    "failed",
+    "neutral",
+]
 GOOD_MERGE_STATES = ["clean", "has_hooks", "unknown", "unstable"]
 
 
@@ -69,7 +74,7 @@ def _get_conda_forge_config(pr):
         _run_git_command("clone", pr.base.repo.clone_url, tmpdir)
         with pushd(tmpdir):
             _run_git_command("checkout", pr.base.ref)
-            with open("conda-forge.yml", "r") as fp:
+            with open("conda-forge.yml") as fp:
                 cfg = YAML().load(fp)
     return cfg
 
@@ -77,7 +82,7 @@ def _get_conda_forge_config(pr):
 def _automerge_me(cfg):
     """Compute if feedstock allows automerges from `conda-forge.yml`"""
     # TODO turn False to True when we default to automerge
-    return cfg.get('bot', {}).get('automerge', False)
+    return cfg.get("bot", {}).get("automerge", False)
 
 
 def _get_checks(repo, pr):
@@ -111,18 +116,18 @@ def _get_github_checks(repo, pr):
     check_states = {}
     checks = _get_checks(repo, pr)
     for check in checks:
-        name = check['app']['slug']
+        name = check["app"]["slug"]
         if name not in IGNORED_CHECKS:
-            if check['status'] != 'completed':
+            if check["status"] != "completed":
                 check_states[name] = None
             else:
-                if check['conclusion'] == "success":
+                if check["conclusion"] == "success":
                     check_states[name] = True
                 else:
                     check_states[name] = False
 
     for name, good in check_states.items():
-        LOGGER.info('check: name|state = %s|%s', name, good)
+        LOGGER.info("check: name|state = %s|%s", name, good)
 
     return check_states
 
@@ -155,26 +160,21 @@ def _get_github_statuses(repo, pr):
             # init with really old time
             status_states[status.context] = (
                 None,
-                datetime.datetime.now() - datetime.timedelta(weeks=10000))
+                datetime.datetime.now() - datetime.timedelta(weeks=10000),
+            )
 
         if status.state in NEUTRAL_STATES:
             if status.updated_at > status_states[status.context][1]:
-                status_states[status.context] = (
-                    None,
-                    status.updated_at)
+                status_states[status.context] = (None, status.updated_at)
         elif status.state in BAD_STATES:
             if status.updated_at > status_states[status.context][1]:
-                status_states[status.context] = (
-                    False,
-                    status.updated_at)
+                status_states[status.context] = (False, status.updated_at)
         else:
             if status.updated_at > status_states[status.context][1]:
-                status_states[status.context] = (
-                    True,
-                    status.updated_at)
+                status_states[status.context] = (True, status.updated_at)
 
     for context, val in status_states.items():
-        LOGGER.info('status: name|state = %s|%s', context, val[0])
+        LOGGER.info("status: name|state = %s|%s", context, val[0])
 
     return {k: v[0] for k, v in status_states.items()}
 
@@ -192,7 +192,7 @@ def _circle_is_active():
     #        branches:
     #          ignore:
     #            - /.*/
-    with open(".circleci/config.yml", "r") as fp:
+    with open(".circleci/config.yml") as fp:
         start = False
         ind = 0
         sentinels = ["filters:", "branches:", "ignore:", "- /.*/"]
@@ -213,10 +213,9 @@ def _circle_is_active():
 
 def _get_required_checks_and_statuses(pr, cfg):
     """return a list of required statuses and checks"""
-    ignored_statuses = cfg.get(
-        'bot', {}).get(
-            'automerge_options', {}).get(
-                'ignored_statuses', [])
+    ignored_statuses = (
+        cfg.get("bot", {}).get("automerge_options", {}).get("ignored_statuses", [])
+    )
     required = ["linter"]
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -238,10 +237,7 @@ def _get_required_checks_and_statuses(pr, cfg):
 
             # smithy writes this config even if circle is off, but we can check
             # for other things
-            if (
-                os.path.exists(".circleci/config.yml")
-                and _circle_is_active()
-            ):
+            if os.path.exists(".circleci/config.yml") and _circle_is_active():
                 required.append("circle")
 
     return [
@@ -251,9 +247,7 @@ def _get_required_checks_and_statuses(pr, cfg):
     ]
 
 
-def _all_statuses_and_checks_ok(
-    status_states, check_states, req_checks_and_states
-):
+def _all_statuses_and_checks_ok(status_states, check_states, req_checks_and_states):
     """check all of the required statuses are OK and return their states"""
     final_states = {r: None for r in req_checks_and_states}
     for req in req_checks_and_states:
@@ -275,7 +269,7 @@ def _all_statuses_and_checks_ok(
                     state = state and s
 
         final_states[req] = None if not found_state else state
-        LOGGER.info('final status: name|state = %s|%s', req, final_states[req])
+        LOGGER.info("final status: name|state = %s|%s", req, final_states[req])
 
     return all(v for v in final_states.values()), final_states
 
@@ -304,7 +298,7 @@ def _no_extra_pr_commits(pr):
     dts = [e.created_at for e in events if e.created_at is not None]
     if len(dts) > 1:
         for i in range(1, len(dts)):
-            if dts[i] < dts[i-1]:
+            if dts[i] < dts[i - 1]:
                 LOGGER.warning("events are out of order!")
                 return None
 
@@ -317,7 +311,7 @@ def _no_extra_pr_commits(pr):
         LOGGER.warning("could not find 'automerge' label in events!")
         return None
 
-    return all(e.event != "committed" for e in events[label_ind+1:])
+    return all(e.event != "committed" for e in events[label_ind + 1 :])
 
 
 def _check_pr(pr: PullRequest, cfg):
@@ -331,14 +325,16 @@ def _check_pr(pr: PullRequest, cfg):
                 return True, None
             else:
                 pr.remove_from_labels("automerge")
-                pr.create_issue_comment("""\
+                pr.create_issue_comment(
+                    """\
 Hi! This is the friendly conda-forge automerge bot!
 
 Commits were made to this PR after the `automerge` label was added. For \
 security reasons, I have disabled automerge by removing the `automerge` label. \
 Please add the `automerge` label again (or ask a maintainer to do so) if you'd \
 like to enable automerge again!
-""")
+"""
+                )
                 return False, "commits were made after the automerge label was added"
 
     # only allowed users
@@ -346,7 +342,7 @@ like to enable automerge again!
         return False, "user %s cannot automerge" % pr.user.login
 
     # only if [bot-automerge] is in the pr title
-    if '[bot-automerge]' not in pr.title:
+    if "[bot-automerge]" not in pr.title:
         return False, "PR does not have the '[bot-automerge]' slug in the title"
 
     # only if only ALLOWED_USERS have commits
@@ -370,10 +366,7 @@ maintainer to do so) if you'd like to enable automerge again!
         return False, "automated bot merges are turned off for this feedstock"
 
     # Ensure files under .github/workflows have not been modified
-    if any(
-        f.filename.startswith(".github/workflows")
-        for f in pr.get_files()
-    ):
+    if any(f.filename.startswith(".github/workflows") for f in pr.get_files()):
         return False, (
             "GitHub Actions workflow files have been modified, and thus automerge "
             "cannot proceed due to API permission limitations. Please merge "
@@ -400,7 +393,7 @@ I considered the following status checks when analyzing this PR:
             _v = "pending"
         else:
             _v = "failed"
-        comment = comment + " - **%s**: %s\n" % (k, _v)
+        comment = comment + f" - **{k}**: {_v}\n"
 
     comment = comment + "\n\nThus the PR was %s" % msg
 
@@ -418,7 +411,7 @@ I considered the following status checks when analyzing this PR:
     _comment_on_pr_with_race(pr, comment, check_slug)
 
 
-def _automerge_pr(repo: Repository, pr: PullRequest) -> Tuple[bool, str]:
+def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
     cfg = _get_conda_forge_config(pr)
     allowed, msg = _check_pr(pr, cfg)
 
@@ -445,28 +438,27 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> Tuple[bool, str]:
     if pr.is_merged():
         return False, "PR has already been merged"
     if (
-        pr.mergeable is None or
-        not pr.mergeable or
-        pr.mergeable_state not in GOOD_MERGE_STATES
+        pr.mergeable is None
+        or not pr.mergeable
+        or pr.mergeable_state not in GOOD_MERGE_STATES
     ):
         _comment_on_pr(
             pr,
             final_statuses,
             "passing, but not in a mergeable state (mergeable=%s, "
-            "mergeable_state=%s)." % (
-                pr.mergeable, pr.mergeable_state
-            ),
+            "mergeable_state=%s)." % (pr.mergeable, pr.mergeable_state),
         )
-        return False, "PR merge issue: mergeable|mergeable_state = %s|%s" % (
-            pr.mergeable, pr.mergeable_state)
+        return False, "PR merge issue: mergeable|mergeable_state = {}|{}".format(
+            pr.mergeable, pr.mergeable_state
+        )
 
     # we're good - now merge
     try:
         merge_status = pr.merge(
             commit_message="automerged PR by conda-forge/automerge-action",
             commit_title=f"{pr.title} (#{pr.number})",
-            merge_method='merge',
-            sha=pr.head.sha
+            merge_method="merge",
+            sha=pr.head.sha,
         )
         merge_status_merged = merge_status.merged
         if not merge_status_merged:
@@ -486,17 +478,14 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> Tuple[bool, str]:
             final_statuses,
             "passing, but could not be merged (error=%s)." % merge_status_message,
         )
-        return (
-            False,
-            "PR could not be merged: message %s" % merge_status_message)
+        return (False, "PR could not be merged: message %s" % merge_status_message)
     else:
         # use a smaller check_race here to make sure this one is prompt
-        _comment_on_pr(
-            pr, final_statuses, "passing and merged! Have a great day!")
+        _comment_on_pr(pr, final_statuses, "passing and merged! Have a great day!")
         return True, "all is well :)"
 
 
-def automerge_pr(repo: Repository, pr: PullRequest) -> Tuple[bool, str]:
+def automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
     """Possibly automerge a PR.
 
     Parameters
@@ -516,12 +505,8 @@ def automerge_pr(repo: Repository, pr: PullRequest) -> Tuple[bool, str]:
     did_merge, reason = _automerge_pr(repo, pr)
 
     if did_merge:
-        LOGGER.info(
-            'MERGED PR %s on %s: %s',
-            pr.number, repo.full_name, reason)
+        LOGGER.info("MERGED PR %s on %s: %s", pr.number, repo.full_name, reason)
     else:
-        LOGGER.info(
-            'DID NOT MERGE PR %s on %s: %s',
-            pr.number, repo.full_name, reason)
+        LOGGER.info("DID NOT MERGE PR %s on %s: %s", pr.number, repo.full_name, reason)
 
     return did_merge, reason

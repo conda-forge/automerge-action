@@ -1,4 +1,5 @@
 import unittest
+
 from ..automerge import _get_github_checks
 
 
@@ -14,9 +15,9 @@ def test_get_github_checks_nochecks(get_mock):
 def test_get_github_checks_ignores_self(get_mock):
     get_mock.return_value = [
         {
-            'app': {'slug': 'github-actions'},
-            'status': 'blah',
-            'conclusion': 'blah',
+            "app": {"slug": "github-actions"},
+            "status": "blah",
+            "conclusion": "blah",
         },
     ]
     stat = _get_github_checks(1, 2)
@@ -28,14 +29,14 @@ def test_get_github_checks_ignores_self(get_mock):
 def test_check_github_checks_all_pending(get_mock):
     get_mock.return_value = [
         {
-            'app': {'slug': 'c1'},
-            'status': 'blah',
-            'conclusion': 'blah',
+            "app": {"slug": "c1"},
+            "status": "blah",
+            "conclusion": "blah",
         },
         {
-            'app': {'slug': 'c2'},
-            'status': 'blah',
-            'conclusion': 'blah',
+            "app": {"slug": "c2"},
+            "status": "blah",
+            "conclusion": "blah",
         },
     ]
     stat = _get_github_checks(1, 2)
@@ -47,14 +48,14 @@ def test_check_github_checks_all_pending(get_mock):
 def test_check_github_checks_all_fail(get_mock):
     get_mock.return_value = [
         {
-            'app': {'slug': 'c1'},
-            'status': 'completed',
-            'conclusion': 'error',
+            "app": {"slug": "c1"},
+            "status": "completed",
+            "conclusion": "error",
         },
         {
-            'app': {'slug': 'c2'},
-            'status': 'completed',
-            'conclusion': 'failure',
+            "app": {"slug": "c2"},
+            "status": "completed",
+            "conclusion": "failure",
         },
     ]
     stat = _get_github_checks(1, 2)
@@ -66,14 +67,14 @@ def test_check_github_checks_all_fail(get_mock):
 def test_check_github_checks_all_success(get_mock):
     get_mock.return_value = [
         {
-            'app': {'slug': 'c1'},
-            'status': 'completed',
-            'conclusion': 'success',
+            "app": {"slug": "c1"},
+            "status": "completed",
+            "conclusion": "success",
         },
         {
-            'app': {'slug': 'c2'},
-            'status': 'completed',
-            'conclusion': 'success',
+            "app": {"slug": "c2"},
+            "status": "completed",
+            "conclusion": "success",
         },
     ]
     stat = _get_github_checks(1, 2)
@@ -85,14 +86,14 @@ def test_check_github_checks_all_success(get_mock):
 def test_check_github_checks_success_plus_pending(get_mock):
     get_mock.return_value = [
         {
-            'app': {'slug': 'c1'},
-            'status': 'blah',
-            'conclusion': 'success',
+            "app": {"slug": "c1"},
+            "status": "blah",
+            "conclusion": "success",
         },
         {
-            'app': {'slug': 'c2'},
-            'status': 'completed',
-            'conclusion': 'success',
+            "app": {"slug": "c2"},
+            "status": "completed",
+            "conclusion": "success",
         },
     ]
     stat = _get_github_checks(1, 2)
@@ -104,19 +105,19 @@ def test_check_github_checks_success_plus_pending(get_mock):
 def test_check_github_checks_success_plus_fail(get_mock):
     get_mock.return_value = [
         {
-            'app': {'slug': 'c1'},
-            'status': 'completed',
-            'conclusion': 'error',
+            "app": {"slug": "c1"},
+            "status": "completed",
+            "conclusion": "error",
         },
         {
-            'app': {'slug': 'c2'},
-            'status': 'completed',
-            'conclusion': 'failure',
+            "app": {"slug": "c2"},
+            "status": "completed",
+            "conclusion": "failure",
         },
         {
-            'app': {'slug': 'c3'},
-            'status': 'completed',
-            'conclusion': 'success',
+            "app": {"slug": "c3"},
+            "status": "completed",
+            "conclusion": "success",
         },
     ]
     stat = _get_github_checks(1, 2)
@@ -128,19 +129,19 @@ def test_check_github_checks_success_plus_fail(get_mock):
 def test_check_github_checks_pending_plus_fail(get_mock):
     get_mock.return_value = [
         {
-            'app': {'slug': 'c1'},
-            'status': 'completed',
-            'conclusion': 'error',
+            "app": {"slug": "c1"},
+            "status": "completed",
+            "conclusion": "error",
         },
         {
-            'app': {'slug': 'c2'},
-            'status': 'completed',
-            'conclusion': 'failure',
+            "app": {"slug": "c2"},
+            "status": "completed",
+            "conclusion": "failure",
         },
         {
-            'app': {'slug': 'c3'},
-            'status': 'blah',
-            'conclusion': 'success',
+            "app": {"slug": "c3"},
+            "status": "blah",
+            "conclusion": "success",
         },
     ]
     stat = _get_github_checks(1, 2)
@@ -152,24 +153,24 @@ def test_check_github_checks_pending_plus_fail(get_mock):
 def test_check_github_checks_pending_plus_success_plus_fail(get_mock):
     get_mock.return_value = [
         {
-            'app': {'slug': 'c1'},
-            'status': 'completed',
-            'conclusion': 'error',
+            "app": {"slug": "c1"},
+            "status": "completed",
+            "conclusion": "error",
         },
         {
-            'app': {'slug': 'c2'},
-            'status': 'completed',
-            'conclusion': 'failure',
+            "app": {"slug": "c2"},
+            "status": "completed",
+            "conclusion": "failure",
         },
         {
-            'app': {'slug': 'c3'},
-            'status': 'blah',
-            'conclusion': 'success',
+            "app": {"slug": "c3"},
+            "status": "blah",
+            "conclusion": "success",
         },
         {
-            'app': {'slug': 'c4'},
-            'status': 'completed',
-            'conclusion': 'success',
+            "app": {"slug": "c4"},
+            "status": "completed",
+            "conclusion": "success",
         },
     ]
     stat = _get_github_checks(1, 2)
