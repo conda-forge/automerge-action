@@ -26,13 +26,12 @@ jobs:
 """)
 
 subprocess.run(
-    "pushd ../cf-test-master && "
-    "git checkout master && "
+    "cd ../cf-test-master && "
+    "git checkout main && "
     "git pull && "
     "git add .github/workflows/automerge.yml && "
-    "git ci --allow-empty -m '[ci skip] automerge to dev' && "
-    "git push && "
-    "popd",
+    "git commit --allow-empty -m '[ci skip] automerge to dev' && "
+    "git push",
     shell=True,
     check=True,
 )

@@ -3,9 +3,11 @@ import os
 import sys
 import github
 import subprocess
-import yaml
+from ruamel.yaml import YAML
 import uuid
 
+
+yaml = YAML()
 
 META = """\
 {% set name = "cf-autotick-bot-test-package" %}
@@ -66,21 +68,19 @@ print("\n\n=========================================")
 print("making the base branch")
 try:
     subprocess.run(
-        "pushd ../cf-test-master && "
-        "git checkout master && "
-        "git reset --hard HEAD && "
-        "git checkout -b %s && "
-        "git push --set-upstream origin %s && "
-        "popd" % (BASE_BRANCH, BASE_BRANCH),
+        f"cd ../cf-test-master && "
+        f"git checkout main && "
+        f"git reset --hard HEAD && "
+        f"git checkout -b {BASE_BRANCH} && "
+        f"git push --set-upstream origin {BASE_BRANCH}",
         shell=True,
         check=True,
     )
 except Exception:
     subprocess.run(
-        "pushd ../cf-test-master && "
-        "git checkout %s && "
-        "git push --set-upstream origin %s && "
-        "popd" % (BASE_BRANCH, BASE_BRANCH),
+        f"cd ../cf-test-master && "
+        f"git checkout {BASE_BRANCH} && "
+        f"git push --set-upstream origin {BASE_BRANCH}",
         shell=True,
     )
 
@@ -121,7 +121,7 @@ with open("recipe/meta.yaml", "w") as fp:
     fp.write(META)
 
 with open("conda-forge.yml", "r") as fp:
-    cfg = yaml.safe_load(fp)
+    cfg = yaml.load(fp)
 
 cfg["provider"]["linux"] = sys.argv[1]
 cfg["provider"]["osx"] = sys.argv[2]
