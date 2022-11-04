@@ -21,13 +21,13 @@ jobs:
           show-channel-urls: true
           miniforge-version: latest
           miniforge-variant: Mambaforge
+          environment-file: environment.yaml
 
       - name: configure conda and install code
         shell: bash -l {0}
         run: |
           conda info -a
 
-          mamba env update --file environment.yml
           mamba install pytest
 
           pip install --no-deps -e .
