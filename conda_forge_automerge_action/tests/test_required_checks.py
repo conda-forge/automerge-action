@@ -1,9 +1,12 @@
-import unittest
-import pytest
 import os
+import unittest
+
+import pytest
 
 from ..automerge import (
-    _all_statuses_and_checks_ok, _get_required_checks_and_statuses, pushd
+    _all_statuses_and_checks_ok,
+    _get_required_checks_and_statuses,
+    pushd,
 )
 
 
@@ -22,12 +25,7 @@ def test_all_statuses_and_checks_ok(val):
         "d-ci": True,
         "f-ci": val,
     }
-    req_checks_and_states = [
-        "a",
-        "b-ci",
-        "e-c",
-        "f-"
-    ]
+    req_checks_and_states = ["a", "b-ci", "e-c", "f-"]
     ok, stats = _all_statuses_and_checks_ok(
         status_states, check_states, req_checks_and_states
     )
@@ -39,17 +37,20 @@ def test_all_statuses_and_checks_ok(val):
         assert stats == {"a": False, "b-ci": None, "e-c": None, "f-": False}
 
 
-@pytest.mark.parametrize("fname", [
-    "appveyor.yml",
-    ".appveyor.yml",
-    ".drone.yml",
-    ".travis.yml",
-    "azure-pipelines.yml",
-    ".circleci/config.yml"
-])
+@pytest.mark.parametrize(
+    "fname",
+    [
+        "appveyor.yml",
+        ".appveyor.yml",
+        ".drone.yml",
+        ".travis.yml",
+        "azure-pipelines.yml",
+        ".circleci/config.yml",
+    ],
+)
 @pytest.mark.parametrize("ignore_linter", ["conda-forge-linter", "linter", None])
-@unittest.mock.patch('conda_forge_automerge_action.automerge._run_git_command')
-@unittest.mock.patch('conda_forge_automerge_action.automerge.tempfile')
+@unittest.mock.patch("conda_forge_automerge_action.automerge._run_git_command")
+@unittest.mock.patch("conda_forge_automerge_action.automerge.tempfile")
 def test_get_required_checks_and_statuses(
     tmpmock, submock, tmpdir, fname, ignore_linter
 ):

@@ -1,7 +1,7 @@
 import os
 import time
-import urllib3.util.retry
 
+import urllib3.util.retry
 from github import Github
 
 
@@ -46,7 +46,7 @@ def create_api_sessions(github_token: str) -> Github:
     """
     # build a github object too
     gh = Github(
-        github_token,
-        retry=urllib3.util.retry.Retry(total=10, backoff_factor=0.1))
+        github_token, retry=urllib3.util.retry.Retry(total=10, backoff_factor=0.1)
+    )
 
     return gh
