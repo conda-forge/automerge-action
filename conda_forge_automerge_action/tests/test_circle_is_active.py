@@ -6,8 +6,8 @@ from ..automerge import _circle_is_active, pushd
 
 
 @pytest.mark.parametrize(
-    "fname",
-    ["fast_finish_ci_pr_build.sh", "checkout_merge_commit.sh"])
+    "fname", ["fast_finish_ci_pr_build.sh", "checkout_merge_commit.sh"]
+)
 def test_circle_is_active_file(tmpdir, fname):
     with pushd(tmpdir):
         os.makedirs(os.path.join(tmpdir, ".circleci"))
@@ -18,24 +18,36 @@ def test_circle_is_active_file(tmpdir, fname):
 
 @pytest.mark.parametrize(
     "txt,val",
-    [("""\
+    [
+        (
+            """\
   filters:
     branches:
       ignore:
         - /.*/
-""", False),
-     ("""\
+""",
+            False,
+        ),
+        (
+            """\
    filters:
 
      branches:
        ignore:
          - /.*/
-""", True),
-     ("""\
+""",
+            True,
+        ),
+        (
+            """\
      branches:
        ignore:
          - /.*/
-""", True)])
+""",
+            True,
+        ),
+    ],
+)
 def test_circle_is_active_config(tmpdir, txt, val):
     with pushd(tmpdir):
         os.makedirs(os.path.join(tmpdir, ".circleci"))

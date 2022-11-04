@@ -1,9 +1,9 @@
 #!/user/bin/env python
 import subprocess
 
-
 with open("../cf-test-master/.github/workflows/automerge.yml", "w") as fp:
-    fp.write("""\
+    fp.write(
+        """\
 on:
   status: {}
   check_suite:
@@ -23,7 +23,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           rerendering_github_token: ${{ secrets.RERENDERING_GITHUB_TOKEN }}
-""")
+"""
+    )
 
 subprocess.run(
     "cd ../cf-test-master && "
