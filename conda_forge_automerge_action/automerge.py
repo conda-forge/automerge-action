@@ -316,6 +316,17 @@ def _no_extra_pr_commits(pr):
 
 def _check_pr(pr: PullRequest, cfg):
     """make sure a PR is ok to automerge"""
+    # Ensure files under .github/workflows have not been modified
+    for f in pr.get_files():
+        if f.filename.startswith(".github/workflows"):
+            return False, (
+                "GitHub Actions workflow files have been modified, and thus automerge "
+                "cannot proceed due to API permission limitations. Please merge "
+                "manually."
+            )
+
+    # If the automerge label is present, check that no commits have been added.
+    # If not, then we are good-to-go.
     if any(label.name == "automerge" for label in pr.get_labels()):
         _no_commits = _no_extra_pr_commits(pr)
         if _no_commits is None:
@@ -364,14 +375,6 @@ maintainer to do so) if you'd like to enable automerge again!
     # can we automerge in this feedstock?
     if not _automerge_me(cfg):
         return False, "automated bot merges are turned off for this feedstock"
-
-    # Ensure files under .github/workflows have not been modified
-    if any(f.filename.startswith(".github/workflows") for f in pr.get_files()):
-        return False, (
-            "GitHub Actions workflow files have been modified, and thus automerge "
-            "cannot proceed due to API permission limitations. Please merge "
-            "manually."
-        )
 
     return True, None
 
