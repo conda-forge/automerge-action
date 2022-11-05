@@ -314,7 +314,7 @@ def _no_extra_pr_commits(pr):
     return all(e.event != "committed" for e in events[label_ind + 1 :])
 
 
-def _check_pr(pr: PullRequest, cfg):
+def _check_pr(pr: PullRequest, cfg) -> tuple[bool, str | None]:
     """make sure a PR is ok to automerge"""
     # Ensure files under .github/workflows have not been modified
     for f in pr.get_files():
@@ -325,9 +325,11 @@ def _check_pr(pr: PullRequest, cfg):
                 "manually."
             )
 
-    # If the automerge label is present, check that no commits have been added.
-    # If not, then we are good-to-go.
-    if any(label.name == "automerge" for label in pr.get_labels()):
+    pr_has_automerge_label = any(label.name == "automerge" for label in pr.get_labels())
+
+    # If the automerge label is present, then we can proceed as long as no commits
+    # have since been added.
+    if pr_has_automerge_label:
         _no_commits = _no_extra_pr_commits(pr)
         if _no_commits is None:
             return False, "could not determine if extra commits were made to PR"
@@ -347,36 +349,36 @@ like to enable automerge again!
 """
                 )
                 return False, "commits were made after the automerge label was added"
+    else:  # The PR has no automerge label, so proceed only if titled "[bot-automerge]"
+        # only allowed users
+        if pr.user.login not in ALLOWED_USERS:
+            return False, "user %s cannot automerge" % pr.user.login
 
-    # only allowed users
-    if pr.user.login not in ALLOWED_USERS:
-        return False, "user %s cannot automerge" % pr.user.login
+        # only if [bot-automerge] is in the pr title
+        if "[bot-automerge]" not in pr.title:
+            return False, "PR does not have the '[bot-automerge]' slug in the title"
 
-    # only if [bot-automerge] is in the pr title
-    if "[bot-automerge]" not in pr.title:
-        return False, "PR does not have the '[bot-automerge]' slug in the title"
+        # only if only ALLOWED_USERS have commits
+        committers = {getattr(c.author, "login", None) for c in pr.get_commits()}
+        if not all(c in ALLOWED_USERS for c in committers):
+            _comment_on_pr_with_race(
+                pr,
+                """\
+    Hi! This is the friendly conda-forge automerge bot!
 
-    # only if only ALLOWED_USERS have commits
-    committers = {getattr(c.author, "login", None) for c in pr.get_commits()}
-    if not all(c in ALLOWED_USERS for c in committers):
-        _comment_on_pr_with_race(
-            pr,
-            """\
-Hi! This is the friendly conda-forge automerge bot!
+    It appears that not all commits to this PR were made by the bot. Thus this PR is \
+    not being automatically merged. Please add the `automerge` label again (or ask a \
+    maintainer to do so) if you'd like to enable automerge again!
+    """,
+                "not all commits to this PR were made by the bot",
+            )
+            return False, "non-bot commits on a bot PR with the automerge slug"
 
-It appears that not all commits to this PR were made by the bot. Thus this PR is \
-not being automatically merged. Please add the `automerge` label again (or ask a \
-maintainer to do so) if you'd like to enable automerge again!
-""",
-            "not all commits to this PR were made by the bot",
-        )
-        return False, "non-bot commits on a bot PR with the automerge slug"
+        # can we automerge in this feedstock?
+        if not _automerge_me(cfg):
+            return False, "automated bot merges are turned off for this feedstock"
 
-    # can we automerge in this feedstock?
-    if not _automerge_me(cfg):
-        return False, "automated bot merges are turned off for this feedstock"
-
-    return True, None
+        return True, None
 
 
 def _comment_on_pr(pr, stats, msg):
