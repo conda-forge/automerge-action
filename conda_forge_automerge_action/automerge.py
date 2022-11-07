@@ -365,12 +365,12 @@ like to enable automerge again!
             _comment_on_pr_with_race(
                 pr,
                 """\
-    Hi! This is the friendly conda-forge automerge bot!
+Hi! This is the friendly conda-forge automerge bot!
 
-    It appears that not all commits to this PR were made by the bot. Thus this PR is \
-    not being automatically merged. Please add the `automerge` label again (or ask a \
-    maintainer to do so) if you'd like to enable automerge again!
-    """,
+It appears that not all commits to this PR were made by the bot. Thus this PR is \
+not being automatically merged. Please add the `automerge` label again (or ask a \
+maintainer to do so) if you'd like to enable automerge again!
+""",
                 "not all commits to this PR were made by the bot",
             )
             return False, "non-bot commits on a bot PR with the automerge slug"
