@@ -10,6 +10,7 @@ import tempfile
 import time
 from typing import TYPE_CHECKING
 
+from github import GithubException
 from ruamel.yaml import YAML
 
 if TYPE_CHECKING:
@@ -465,20 +466,25 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
             merge_status_message = merge_status.message
         else:
             merge_status_message = None
-    except Exception:
-        LOGGER.exception("API error in POST to merge")
+    except GithubException as e:
         merge_status_merged = False
-        merge_status_message = (
-            "API error in POST to merge. Check Actions logs for stack trace."
-        )
+        merge_status_message = "API error in PUT to merge"
+        LOGGER.exception(merge_status_message)
+        if "message" in e.data:
+            merge_status_message += f" -- '{e.data['message']}'"
+    except Exception:
+        merge_status_merged = False
+        merge_status_message = "Unexpected error while attempting to merge."
+        LOGGER.exception(merge_status_message)
+        merge_status_message += " Check Actions logs for stack trace."
 
     if not merge_status_merged:
         _comment_on_pr(
             pr,
             final_statuses,
-            "passing, but could not be merged (error=%s)." % merge_status_message,
+            "passing, but could not be merged (error={merge_status_message}).",
         )
-        return (False, "PR could not be merged: message %s" % merge_status_message)
+        return (False, f"PR could not be merged: {merge_status_message}")
     else:
         # use a smaller check_race here to make sure this one is prompt
         _comment_on_pr(pr, final_statuses, "passing and merged! Have a great day!")
