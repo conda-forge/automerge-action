@@ -6,7 +6,6 @@ import uuid
 
 import github
 from ruamel.yaml import YAML
-from utils import move_action_to_dev
 
 yaml = YAML()
 
@@ -25,8 +24,7 @@ source:
 build:
   number: {{ build }}
   string: "{{ cislug }}_py{{ py }}h{{ PKG_HASH }}_{{ build }}"
-  script: exit 1  # [osx]
-  skip: True  # [py != 38]
+  skip: True  # [py != 38 or not linux]
 
 requirements:
   host:
@@ -62,7 +60,7 @@ CI_SLUG = '{% set cislug = "' + sys.argv[1] + sys.argv[2] + '" %}\n'
 TST = sys.argv[3]
 
 uid = "h" + uuid.uuid4().hex[0:6]
-BASE_BRANCH = f"{uid}-{sys.argv[1]}-{sys.argv[2]}-ci-fail"
+BASE_BRANCH = f"{uid}-{sys.argv[1]}-{sys.argv[2]}-gha-edits"
 BRANCH = TST + "-" + BASE_BRANCH
 
 print("\n\n=========================================")
@@ -84,7 +82,6 @@ except Exception:
         f"git push --set-upstream origin {BASE_BRANCH}",
         shell=True,
     )
-
 
 print("\n\n=========================================")
 print("making the head branch")
@@ -144,10 +141,6 @@ print("\n\n=========================================")
 print("rerendering")
 
 subprocess.run(["conda", "smithy", "rerender", "-c", "auto"], check=True)
-
-print("\n\n=========================================")
-print("remove actions edits")
-move_action_to_dev()
 
 print("\n\n=========================================")
 print("pushing to the fork")
