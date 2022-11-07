@@ -6,6 +6,7 @@ import uuid
 
 import github
 from ruamel.yaml import YAML
+from utils import move_action_to_dev
 
 yaml = YAML()
 
@@ -141,6 +142,10 @@ print("\n\n=========================================")
 print("rerendering")
 
 subprocess.run(["conda", "smithy", "rerender", "-c", "auto"], check=True)
+
+print("\n\n=========================================")
+print("remove actions edits")
+move_action_to_dev()
 
 print("\n\n=========================================")
 print("pushing to the fork")

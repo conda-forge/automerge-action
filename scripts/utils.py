@@ -1,9 +1,10 @@
-#!/user/bin/env python
 import subprocess
 
-with open("../cf-test-master/.github/workflows/automerge.yml", "w") as fp:
-    fp.write(
-        """\
+
+def move_action_to_dev():
+    with open(".github/workflows/automerge.yml", "w") as fp:
+        fp.write(
+            """\
 on:
   status: {}
   check_suite:
@@ -24,15 +25,12 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           rerendering_github_token: ${{ secrets.RERENDERING_GITHUB_TOKEN }}
 """
-    )
+        )
 
-subprocess.run(
-    "cd ../cf-test-master && "
-    "git checkout main && "
-    "git pull && "
-    "git add .github/workflows/automerge.yml && "
-    "git commit --allow-empty -m '[ci skip] automerge to dev' && "
-    "git push",
-    shell=True,
-    check=True,
-)
+    subprocess.run(
+        "git add .github/workflows/automerge.yml && "
+        "git commit --allow-empty -m 'automerge to dev' && "
+        "git push",
+        shell=True,
+        check=True,
+    )
