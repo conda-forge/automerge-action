@@ -474,8 +474,8 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
     except GithubException as e:
         merge_status_merged = False
         merge_status_message = "API error in PUT to merge"
-        LOGGER.exception(merge_status_message)
-        if "message" in e.data:
+        LOGGER.exception(merge_status_message + ":")
+        if e.data is not None and "message" in e.data:
             merge_status_message += f" -- '{e.data['message']}'"
     except Exception:
         merge_status_merged = False
