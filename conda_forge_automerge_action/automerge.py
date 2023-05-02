@@ -487,7 +487,7 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
         _comment_on_pr(
             pr,
             final_statuses,
-            "passing, but could not be merged (error={merge_status_message}).",
+            f"passing, but could not be merged (error={merge_status_message}).",
         )
         return (False, f"PR could not be merged: {merge_status_message}")
     else:
