@@ -193,3 +193,7 @@ with tempfile.TemporaryDirectory() as tmpdir:
 
                 if pr is not None and not pr.is_merged():
                     pr.edit(state="closed")
+
+                # delete the branch
+                _run_git_cmd("branch -d %s" % TEST_BRANCH)
+                _run_git_cmd("push -d origin %s" % TEST_BRANCH)
