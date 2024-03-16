@@ -34,7 +34,7 @@ jobs:
         run: |
           conda info -a
 
-          mamba install pytest
+          mamba install pytest conda-smithy
 
           pip install --no-deps -e .
 

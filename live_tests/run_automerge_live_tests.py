@@ -133,7 +133,28 @@ with tempfile.TemporaryDirectory() as tmpdir:
                 _run_git_cmd("checkout main")
                 _run_git_cmd("checkout -b %s" % TEST_BRANCH)
 
+                print("adding a correct recipe and conda-forge.yml...")
+                test_dir = os.path.dirname(__file__)
+                subprocess.run(
+                    f"cp {test_dir}/conda-forge.yml .",
+                    shell=True,
+                    check=True,
+                )
+                subprocess.run(
+                    f"cp {test_dir}/meta.yaml recipe/meta.yaml",
+                    shell=True,
+                    check=True,
+                )
+
+                print("rerendering...")
+                subprocess.run(
+                    "conda smithy rerender -c auto --no-check-uptodate",
+                    shell=True,
+                    check=True,
+                )
+
                 print("making a commit...")
+                _run_git_cmd("git add .")
                 _run_git_cmd("commit --allow-empty -m 'test commit for automerge'")
 
                 print("push to branch...")
@@ -157,10 +178,12 @@ with tempfile.TemporaryDirectory() as tmpdir:
 
                 print("waiting for the PR to be merged...")
                 tot = 0
-                while tot < 300:
+                while tot < 600:
                     time.sleep(10)
                     tot += 10
                     print("    slept %s seconds out of 300" % tot, flush=True)
+                    if pr.is_merged():
+                        break
 
                 if not pr.is_merged():
                     raise RuntimeError("PR %d was not merged!" % pr.number)
