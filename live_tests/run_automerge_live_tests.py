@@ -15,13 +15,14 @@ This script will run a live integration test of the automerge infrastructure.
 
 Then you can execute this script and it will report the results.
 """
-import os
-import time
-import tempfile
-import contextlib
-import subprocess
 import argparse
+import contextlib
+import os
+import subprocess
+import tempfile
+import time
 import uuid
+
 import github
 
 TEST_BRANCH = "automerge-live-test-h%s" % uuid.uuid4().hex[:6]
@@ -51,7 +52,8 @@ def _change_action_branch(branch):
     )
 
     with open(".github/workflows/automerge.yml", "w") as fp:
-        fp.write("""\
+        fp.write(
+            """\
 on:
   status: {}
   check_suite:
@@ -71,7 +73,9 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           %s
-""" % data)
+"""
+            % data
+        )
 
     print("commiting...", flush=True)
     _run_git_cmd("add -f .github/workflows/automerge.yml")
@@ -110,7 +114,7 @@ if args.build_and_push:
     )
 
 
-print('making an edit to the head ref...')
+print("making an edit to the head ref...")
 with tempfile.TemporaryDirectory() as tmpdir:
     with pushd(tmpdir):
         print("cloning...")
@@ -127,9 +131,7 @@ with tempfile.TemporaryDirectory() as tmpdir:
 
                 print("checkout branch...")
                 _run_git_cmd("checkout main")
-                _run_git_cmd(
-                    "checkout -b %s" % TEST_BRANCH
-                )
+                _run_git_cmd("checkout -b %s" % TEST_BRANCH)
 
                 print("making a commit...")
                 _run_git_cmd("commit --allow-empty -m 'test commit for automerge'")

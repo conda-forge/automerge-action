@@ -9,6 +9,9 @@ on:
     - cron: "0 6 * * SUN"  # Once weekly on Sunday @ 0600 UTC
   workflow_dispatch: null
 
+concurrency:
+  group: ${{ github.workflow }}
+
 jobs:
   tests:
     name: tests
@@ -60,7 +63,7 @@ jobs:
           git config --global user.name "conda-forge-admin"
           git config --global user.email "pelson.pub+conda-forge@gmail.com"
           git config --global pull.rebase false
-          python tests/run_automerge_live_test.py --build-and-push
+          python live_tests/run_automerge_live_test.py --build-and-push
         env:
           GHA_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}

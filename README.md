@@ -70,7 +70,8 @@ Docker image.
 
 ## Testing
 
-The code has a test suite. However, to test it live, you can do one of three things.
+The code has a test suite and will run live tests if the PR is from a repo branch.
+However, you can test it live end-to-end with the bot by doing the following.
 
 1. Bump the version of [this package](https://github.com/regro/cf-autotick-bot-test-package)
    by making a GitHub release. Then, after roughly an hour or so,
