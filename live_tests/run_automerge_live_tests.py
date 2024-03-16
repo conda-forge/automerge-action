@@ -45,6 +45,7 @@ def _run_git_cmd(cmd):
 def _change_action_branch(branch):
     print("moving repo to %s action" % branch, flush=True)
     _run_git_cmd("checkout main")
+    _run_git_cmd("pull")
 
     data = (
         branch,
