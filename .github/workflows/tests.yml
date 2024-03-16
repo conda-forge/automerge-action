@@ -44,11 +44,6 @@ jobs:
           pytest -vv conda_forge_automerge_action
           command -v run-automerge-action
 
-      - name: build the docker image
-        shell: bash -l {0}
-        run: |
-          docker build --no-cache -t test .
-
       - name: generate token
         id: generate_token
         uses: conda-forge/github-app-token@e3ab451d57e120b956292a1fa1d21fe4ba171c36
@@ -63,7 +58,7 @@ jobs:
           git config --global user.name "conda-forge-admin"
           git config --global user.email "pelson.pub+conda-forge@gmail.com"
           git config --global pull.rebase false
-          python live_tests/run_automerge_live_test.py --build-and-push
+          python live_tests/run_automerge_live_tests.py --build-and-push
         env:
           GHA_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
