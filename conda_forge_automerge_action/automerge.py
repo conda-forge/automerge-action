@@ -321,11 +321,21 @@ def _no_extra_pr_commits(pr):
     return all(e.event != "committed" for e in events[label_ind + 1 :])
 
 
+def _have_special_token():
+    if (
+        "INPUT_RERENDERING_GITHUB_TOKEN" in os.environ
+        and len(os.environ["INPUT_RERENDERING_GITHUB_TOKEN"]) > 0
+    ):
+        return True
+    else:
+        return False
+
+
 def _check_pr(pr: PullRequest, cfg) -> tuple[bool, str | None]:
     """make sure a PR is ok to automerge"""
     # Ensure files under .github/workflows have not been modified
     for f in pr.get_files():
-        if f.filename.startswith(".github/workflows"):
+        if f.filename.startswith(".github/workflows") and not _have_special_token():
             return False, (
                 "GitHub Actions workflow files have been modified, and thus automerge "
                 "cannot proceed due to API permission limitations. Please merge "
