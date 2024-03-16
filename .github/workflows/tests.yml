@@ -14,7 +14,7 @@ jobs:
     name: tests
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
@@ -45,6 +45,26 @@ jobs:
         shell: bash -l {0}
         run: |
           docker build --no-cache -t test .
+
+      - name: generate token
+        id: generate_token
+        uses: conda-forge/github-app-token@e3ab451d57e120b956292a1fa1d21fe4ba171c36
+        with:
+          app_id: ${{ secrets.CF_CURATOR_APP_ID }}
+          private_key: ${{ secrets.CF_CURATOR_PRIVATE_KEY }}
+
+      - name: run live tests
+        shell: bash -l {0}
+        run: |
+          echo "${DH_PASSWORD}" | docker login -u condaforgebot --password-stdin
+          git config --global user.name "conda-forge-admin"
+          git config --global user.email "pelson.pub+conda-forge@gmail.com"
+          git config --global pull.rebase false
+          python tests/run_automerge_live_test.py --build-and-push
+        env:
+          GHA_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+          DH_PASSWORD: ${{ secrets.CF_BOT_DH_PASSWORD }}
 
   docker-push:
     name: docker-push
