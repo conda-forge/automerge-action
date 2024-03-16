@@ -155,14 +155,20 @@ def _get_github_statuses(repo, pr):
     commit = repo.get_commit(pr.head.sha)
     statuses = commit.get_statuses()
 
+    oldest_time = None
     status_states = {}
     for status in statuses:
+        if oldest_time is None:
+            if status.updated_at.tzinfo is None:
+                oldest_time = datetime.datetime.now() - datetime.timedelta(weeks=10000)
+            else:
+                oldest_time = datetime.datetime.now(
+                    datetime.timezone.utc
+                ) - datetime.timedelta(weeks=10000)
+
         if status.context not in status_states:
             # init with really old time
-            status_states[status.context] = (
-                None,
-                datetime.datetime.now() - datetime.timedelta(weeks=10000),
-            )
+            status_states[status.context] = (None, oldest_time)
 
         if status.state in NEUTRAL_STATES:
             if status.updated_at > status_states[status.context][1]:

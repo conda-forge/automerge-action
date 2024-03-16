@@ -6,7 +6,7 @@ dependencies:
 - python=3.11
 - pip
 - tini
-- pygithub
+- pygithub>=2.2.0
 - tenacity
 - requests
 - ruamel.yaml
