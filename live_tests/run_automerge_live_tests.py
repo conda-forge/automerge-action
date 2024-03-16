@@ -129,11 +129,11 @@ with tempfile.TemporaryDirectory() as tmpdir:
             try:
                 _change_action_branch("dev")
 
-                print("checkout branch...")
+                print("checkout branch...", flush=True)
                 _run_git_cmd("checkout main")
                 _run_git_cmd("checkout -b %s" % TEST_BRANCH)
 
-                print("adding a correct recipe and conda-forge.yml...")
+                print("adding a correct recipe and conda-forge.yml...", flush=True)
                 test_dir = os.path.dirname(__file__)
                 subprocess.run(
                     f"cp {test_dir}/conda-forge.yml .",
@@ -146,23 +146,30 @@ with tempfile.TemporaryDirectory() as tmpdir:
                     check=True,
                 )
 
-                print("rerendering...")
+                print("rerendering...", flush=True)
                 subprocess.run(
                     "conda smithy rerender -c auto --no-check-uptodate",
                     shell=True,
                     check=True,
                 )
 
-                print("making a commit...")
+                print("making a commit...", flush=True)
                 _run_git_cmd("add .")
                 _run_git_cmd("commit --allow-empty -m 'test commit for automerge'")
 
-                print("push to branch...")
+                print("push to branch...", flush=True)
                 _run_git_cmd("push -u origin %s" % TEST_BRANCH)
 
-                print("making a PR...")
                 gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
                 repo = gh.get_repo("conda-forge/cf-autotick-bot-test-package-feedstock")
+
+                print("adding app token for workflow change permissions...", flush=True)
+                repo.create_secret(
+                    "RERENDERING_GITHUB_TOKEN",
+                    os.environ["GH_TOKEN"],
+                )
+
+                print("making a PR...", flush=True)
                 pr = repo.create_pull(
                     "main",
                     TEST_BRANCH,
@@ -176,16 +183,19 @@ with tempfile.TemporaryDirectory() as tmpdir:
                 )
                 pr.add_to_labels("automerge")
 
-                print("waiting for the PR to be merged...")
+                print("waiting for the PR to be merged...", flush=True)
                 tot = 0
+                merged = False
                 while tot < 600:
                     time.sleep(10)
                     tot += 10
-                    print("    slept %s seconds out of 300" % tot, flush=True)
-                    if pr.is_merged():
+                    print("    slept %s seconds out of 600" % tot, flush=True)
+                    if tot % 30 == 0 and pr.is_merged():
+                        print("PR was merged!", flush=True)
+                        merged = True
                         break
 
-                if not pr.is_merged():
+                if not merged:
                     raise RuntimeError("PR %d was not merged!" % pr.number)
 
             finally:
