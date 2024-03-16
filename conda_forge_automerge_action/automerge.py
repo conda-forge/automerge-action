@@ -334,8 +334,8 @@ def _have_special_token():
 def _check_pr(pr: PullRequest, cfg) -> tuple[bool, str | None]:
     """make sure a PR is ok to automerge"""
     # Ensure files under .github/workflows have not been modified
-    for f in pr.get_files() and not _have_special_token():
-        if f.filename.startswith(".github/workflows"):
+    for f in pr.get_files():
+        if f.filename.startswith(".github/workflows") and not _have_special_token():
             return False, (
                 "GitHub Actions workflow files have been modified, and thus automerge "
                 "cannot proceed due to API permission limitations. Please merge "
