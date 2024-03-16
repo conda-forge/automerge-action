@@ -201,9 +201,18 @@ with tempfile.TemporaryDirectory() as tmpdir:
             finally:
                 _change_action_branch("main")
 
+                print("closing PR if it is open...", flush=True)
                 if pr is not None and not pr.is_merged():
                     pr.edit(state="closed")
 
-                # delete the branch
+                print("deleting the branch...", flush=True)
                 _run_git_cmd("branch -d %s" % TEST_BRANCH)
                 _run_git_cmd("push -d origin %s" % TEST_BRANCH)
+
+                print("removing the secret...", flush=True)
+                gh = github.Github(auth=github.Auth.Token(os.environ["GH_TOKEN"]))
+                repo = gh.get_repo("conda-forge/cf-autotick-bot-test-package-feedstock")
+                try:
+                    repo.get_secret("RERENDERING_GITHUB_TOKEN").delete()
+                except Exception:
+                    pass
