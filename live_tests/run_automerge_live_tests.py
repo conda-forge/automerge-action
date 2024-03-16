@@ -154,7 +154,7 @@ with tempfile.TemporaryDirectory() as tmpdir:
                 )
 
                 print("making a commit...")
-                _run_git_cmd("git add .")
+                _run_git_cmd("add .")
                 _run_git_cmd("commit --allow-empty -m 'test commit for automerge'")
 
                 print("push to branch...")
