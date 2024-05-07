@@ -17,4 +17,4 @@ jobs:
           commit_message: "Ah ah ah, stayin' alive"
           committer_username: conda-forge-bot
           committer_email: "conda-forge-bot@users.noreply.github.com"
-          time_elapsed: 50  # days
+          use_api: false
