@@ -242,6 +242,9 @@ def _get_required_checks_and_statuses(pr, cfg):
             if os.path.exists("azure-pipelines.yml"):
                 required.append("azure")
 
+            if os.path.exists(".github/workflows/conda-build.yml"):
+                required.append("github-actions")
+
             # smithy writes this config even if circle is off, but we can check
             # for other things
             if os.path.exists(".circleci/config.yml") and _circle_is_active():
