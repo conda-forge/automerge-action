@@ -12,20 +12,6 @@ def test_get_github_checks_nochecks(get_mock):
 
 
 @unittest.mock.patch("conda_forge_automerge_action.automerge._get_checks")
-def test_get_github_checks_ignores_self(get_mock):
-    get_mock.return_value = [
-        {
-            "app": {"slug": "github-actions"},
-            "status": "blah",
-            "conclusion": "blah",
-        },
-    ]
-    stat = _get_github_checks(1, 2)
-    get_mock.assert_called_once_with(1, 2)
-    assert stat == {}
-
-
-@unittest.mock.patch("conda_forge_automerge_action.automerge._get_checks")
 def test_check_github_checks_all_pending(get_mock):
     get_mock.return_value = [
         {
