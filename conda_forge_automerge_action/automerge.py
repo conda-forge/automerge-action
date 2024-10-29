@@ -21,9 +21,7 @@ LOGGER = logging.getLogger(__name__)
 
 ALLOWED_USERS = ["regro-cf-autotick-bot"]
 
-# action always ignores itself
-# github actions use the check_suite API
-IGNORED_CHECKS = ["github-actions"]
+IGNORED_CHECKS = []
 
 # sets of states that indicate good / bad / neutral in the github API
 NEUTRAL_STATES = ["pending"]
@@ -94,6 +92,11 @@ def _get_checks(repo, pr):
         _check["app"] = {"slug": check.app.slug}
         _check["status"] = check.status
         _check["conclusion"] = check.conclusion
+        # for gha we check the runs to ensure we have the right check
+        if check.status == "completed" and check.app.slug == "github-actions":
+            _check["runs"] = [run.name for run in check.get_check_runs()]
+        else:
+            _check["runs"] = None
         checks.append(_check)
     return checks
 
@@ -122,10 +125,20 @@ def _get_github_checks(repo, pr):
             if check["status"] != "completed":
                 check_states[name] = None
             else:
-                if check["conclusion"] == "success":
-                    check_states[name] = True
+                if name == "github-actions":
+                    if (
+                        check["conclusion"] == "success"
+                        and check["runs"]
+                        and (not any(run == "automerge" for run in check["runs"]))
+                    ):
+                        check_states[name] = True
+                    else:
+                        check_states[name] = False
                 else:
-                    check_states[name] = False
+                    if check["conclusion"] == "success":
+                        check_states[name] = True
+                    else:
+                        check_states[name] = False
 
     for name, good in check_states.items():
         LOGGER.info("check: name|state = %s|%s", name, good)
@@ -324,26 +337,8 @@ def _no_extra_pr_commits(pr):
     return all(e.event != "committed" for e in events[label_ind + 1 :])
 
 
-def _have_special_token():
-    if (
-        "INPUT_RERENDERING_GITHUB_TOKEN" in os.environ
-        and len(os.environ["INPUT_RERENDERING_GITHUB_TOKEN"]) > 0
-    ):
-        return True
-    else:
-        return False
-
-
 def _check_pr(pr: PullRequest, cfg) -> tuple[bool, str | None]:
     """make sure a PR is ok to automerge"""
-    # Ensure files under .github/workflows have not been modified
-    for f in pr.get_files():
-        if f.filename.startswith(".github/workflows") and not _have_special_token():
-            return False, (
-                "GitHub Actions workflow files have been modified, and thus automerge "
-                "cannot proceed due to API permission limitations. Please merge "
-                "manually."
-            )
 
     pr_has_automerge_label = any(label.name == "automerge" for label in pr.get_labels())
 
