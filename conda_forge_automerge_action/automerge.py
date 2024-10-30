@@ -454,7 +454,6 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
         return False, "PR has failing or pending statuses/checks"
 
     # make sure PR is mergeable and not already merged
-    
     # we have to get the PR again to ensure we have updated mergeable status
     pr = repo.get_pull(pr.number)
 
