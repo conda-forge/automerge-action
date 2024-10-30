@@ -12,7 +12,6 @@ from ..automerge import (
 
 @pytest.mark.parametrize("val", [True, False])
 def test_all_statuses_and_checks_ok(val):
-
     status_states = {
         "A-ci": val,
         "b-CI": None if not val else True,

@@ -1,5 +1,5 @@
 # automerge-action
-[![tests](https://github.com/conda-forge/automerge-action/actions/workflows/tests.yml/badge.svg)](https://github.com/conda-forge/automerge-action/actions/workflows/tests.yml)
+[![tests](https://github.com/conda-forge/automerge-action/actions/workflows/tests.yml/badge.svg)](https://github.com/conda-forge/automerge-action/actions/workflows/tests.yml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/conda-forge/automerge-action/main.svg)](https://results.pre-commit.ci/latest/github/conda-forge/automerge-action/main)
 
 github action automerge on conda-forge
 

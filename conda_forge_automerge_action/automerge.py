@@ -36,7 +36,6 @@ BAD_STATES = [
     "failed",
     "neutral",
 ]
-GOOD_MERGE_STATES = ["clean", "has_hooks", "unknown", "unstable"]
 
 
 # https://stackoverflow.com/questions/6194499/pushd-through-os-system
@@ -455,18 +454,17 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
         return False, "PR has failing or pending statuses/checks"
 
     # make sure PR is mergeable and not already merged
+    # we have to get the PR again to ensure we have updated mergeable status
+    pr = repo.get_pull(pr.number)
+
     if pr.is_merged():
         return False, "PR has already been merged"
-    if (
-        pr.mergeable is None
-        or not pr.mergeable
-        or pr.mergeable_state not in GOOD_MERGE_STATES
-    ):
+
+    if pr.mergeable is None or not pr.mergeable:
         _comment_on_pr(
             pr,
             final_statuses,
-            "passing, but not in a mergeable state (mergeable=%s, "
-            "mergeable_state=%s)." % (pr.mergeable, pr.mergeable_state),
+            "passing, but not in a mergeable state (mergeable=%s)." % pr.mergeable,
         )
         return False, "PR merge issue: mergeable|mergeable_state = {}|{}".format(
             pr.mergeable, pr.mergeable_state
