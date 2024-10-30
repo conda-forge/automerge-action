@@ -464,8 +464,7 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
         _comment_on_pr(
             pr,
             final_statuses,
-            "passing, but not in a mergeable state (mergeable=%s)."
-            % pr.mergeable,
+            "passing, but not in a mergeable state (mergeable=%s)." % pr.mergeable,
         )
         return False, "PR merge issue: mergeable|mergeable_state = {}|{}".format(
             pr.mergeable, pr.mergeable_state
