@@ -460,16 +460,12 @@ def _automerge_pr(repo: Repository, pr: PullRequest) -> tuple[bool, str | None]:
     if pr.is_merged():
         return False, "PR has already been merged"
 
-    if (
-        pr.mergeable is None
-        or not pr.mergeable
-    ):
+    if pr.mergeable is None or not pr.mergeable:
         _comment_on_pr(
             pr,
             final_statuses,
-            "passing, but not in a mergeable state (mergeable=%s)." % (
-                pr.mergeable, pr.mergeable_state
-            ),
+            "passing, but not in a mergeable state (mergeable=%s)."
+            % (pr.mergeable, pr.mergeable_state),
         )
         return False, "PR merge issue: mergeable|mergeable_state = {}|{}".format(
             pr.mergeable, pr.mergeable_state

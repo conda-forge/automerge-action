@@ -15,6 +15,7 @@ This script will run a live integration test of the automerge infrastructure.
 
 Then you can execute this script and it will report the results.
 """
+
 import argparse
 import contextlib
 import os
