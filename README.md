@@ -13,6 +13,10 @@ on:
   check_suite:
     types:
       - completed
+  workflow_run:
+    workflows: ["Build conda package"]
+    types:
+      - completed
 
 jobs:
   automerge-action:
