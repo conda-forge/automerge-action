@@ -23,11 +23,13 @@ def main():
     LOGGER.info("github event: %s", event_name)
 
     raise_error = False
-    if event_name in ["status", "check_suite"]:
+    if event_name in ["status", "check_suite", "workflow_run"]:
         if event_name == "status":
             sha = event_data["sha"]
         elif event_name == "check_suite":
             sha = event_data["check_suite"]["head_sha"]
+        elif event_name == "workflow_run":
+            sha = event_data["workflow_run"]["head_sha"]
         else:
             raise NotImplementedError(f"Should never happen. {event_name=}")
 
