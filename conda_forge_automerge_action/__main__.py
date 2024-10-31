@@ -60,7 +60,9 @@ def main():
         "=================================",
         flush=True,
     )
-    LOGGER.info("github event data:\n%s\n\n", pprint.pformat(event_data))
+    print("::group::event data", flush=True)
+    print("github event data:\n%s\n\n" % pprint.pformat(event_data), flush=True)
+    print("::endgroup::", flush=True)
 
     if raise_error:
         raise ValueError("GitHub event %s cannot be processed!" % event_name)
