@@ -1,3 +1,6 @@
+# DEPRECATED & NO LONGER USED
+**This docker image and automerge GHA are no longer used. Automerge now happens in the [conda-forge-webservices](https://github.com/conda-forge/conda-forge-webservices) repo.**
+
 # automerge-action
 [![tests](https://github.com/conda-forge/automerge-action/actions/workflows/tests.yml/badge.svg)](https://github.com/conda-forge/automerge-action/actions/workflows/tests.yml) [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/conda-forge/automerge-action/main.svg)](https://results.pre-commit.ci/latest/github/conda-forge/automerge-action/main)
 
